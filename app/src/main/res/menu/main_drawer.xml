@@ -46,6 +46,10 @@
             android:id="@+id/nav_github2"
             android:icon="@drawable/ic_menu_github"
             android:title="SplashCodes" />
+        <item
+            android:id="@+id/nav_github3"
+            android:icon="@drawable/ic_menu_github"
+            android:title="cclao" />
     </group>
 
 

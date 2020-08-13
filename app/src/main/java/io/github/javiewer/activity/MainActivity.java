@@ -59,6 +59,7 @@ public class MainActivity extends SecureActivity {
     public static final int ID_GENRE = 6;
     public static final int ID_GITHUB1 = 7;
     public static final int ID_GITHUB2 = 8;
+    public static final int ID_GITHUB3 = 9;
 
     public static final Map<Integer, Class<? extends Fragment>> FRAGMENTS = new HashMap<Integer, Class<? extends Fragment>>() {{
         put(ID_HOME, HomeFragment.class);
@@ -134,7 +135,8 @@ public class MainActivity extends SecureActivity {
                         new PrimaryDrawerItem().withIdentifier(ID_GENRE).withName("类别").withIcon(R.drawable.ic_menu_genre).withIconTintingEnabled(true),
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withIdentifier(ID_GITHUB1).withName("SeanChengN").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false),
-                        new PrimaryDrawerItem().withIdentifier(ID_GITHUB2).withName("SplashCodes").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false)
+                        new PrimaryDrawerItem().withIdentifier(ID_GITHUB2).withName("SplashCodes").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false),
+                        new PrimaryDrawerItem().withIdentifier(ID_GITHUB3).withName("cclao").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false)
                 )
                 .withSelectedItem(ID_HOME)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -155,6 +157,13 @@ public class MainActivity extends SecureActivity {
                                 startActivity(intent);
                                 break;
                             }
+                            case ID_GITHUB3: {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/cclao/JAViewer/releases"));
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                break;
+                            }
+
                             case ID_FAV: {
                                 Intent intent = new Intent(MainActivity.this, FavouriteActivity.class);
                                 startActivity(intent);
