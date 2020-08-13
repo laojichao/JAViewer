@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.multidex.MultiDex;
 import cn.jzvd.JZVideoPlayer;
 import io.fabric.sdk.android.Fabric;
 import io.github.javiewer.adapter.item.DataSource;
@@ -173,5 +174,6 @@ public class JAViewer extends Application {
     public void onCreate() {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
+        MultiDex.install(this);
     }
 }

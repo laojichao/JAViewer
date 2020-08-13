@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.button.MaterialButton;
@@ -259,6 +260,21 @@ public class MainActivity extends SecureActivity {
 
     @Override
     public void onBackPressed() {
+        AppExit();
+    }
+
+    //第一次按下的时间
+    private long firstClick;
+
+    /**
+     * 连续点击退出
+     */
+    public void AppExit() {
+        if (System.currentTimeMillis() - this.firstClick > 2000L) {
+            this.firstClick = System.currentTimeMillis();
+            Toast.makeText(this, "再按一次退出", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
             return;
@@ -270,6 +286,7 @@ public class MainActivity extends SecureActivity {
         }
 
         moveTaskToBack(false);
+//        finish();
     }
 
     @Override

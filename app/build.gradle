@@ -3,7 +3,7 @@ apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '28.0.3'
+    buildToolsVersion '29.0.3'
 
     defaultConfig {
         applicationId "io.github.javiewer"
@@ -11,6 +11,7 @@ android {
         targetSdkVersion 29
         versionCode 22
         versionName "2.0.0-fuck-0812"
+        multiDexEnabled true
 
     }
     buildTypes {
@@ -36,13 +37,13 @@ dependencies {
     //compile fileTree(include: ['*.jar'], dir: 'libs')
 
     //Support
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.2.0'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-rc1'
     //View
     implementation "com.mikepenz:materialdrawer:6.1.1"
     implementation 'com.aurelhubert:ahbottomnavigation:2.2.0'
@@ -60,18 +61,19 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'com.karumi:dexter:5.0.0'
     implementation 'jp.wasabeef:recyclerview-animators:2.2.6'
+    implementation 'com.android.support:multidex:1.0.3'
 
     //Player
     implementation 'cn.jzvd:jiaozivideoplayer:6.2.12'
     implementation 'com.google.android.exoplayer:exoplayer:2.8.2'
     //Firebase
-    implementation 'com.google.firebase:firebase-auth:19.0.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.2'
 
     testImplementation 'junit:junit:4.12'
     implementation 'com.jakewharton:butterknife:10.1.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
         transitive = true;
     }
 }
