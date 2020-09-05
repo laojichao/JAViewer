@@ -1,25 +1,47 @@
 {
-  "latest_version": "2.0.0-fuck-0812",
+  "latest_version": "2.0.2-0905",
   "latest_version_code": "22",
-  "changelog": "**修改版更新**\n2.0.0-fuck-0812 \n修复BTSO",
+  "changelog": "**修改版更新**\n2.0.2-0905 \n修复BTSO",
   "data_sources": [
     {
       "name": "AVMOO 日本",
       "link": "https://avmoo.host",
       "legacies":[
+        "javzoo.com",
+        "avmoo.xyz",
+        "avmoo.net",
+        "avmoo.pw",
+        "javmoo.com",
+        "javlog.com",
+        "javtag.com",
+        "javhip.com",
+        "avos.pw",
+        "avmo.pw",
+        "avmo.club",
+        "avio.pw",
+        "javdog.com",
+        "javmoo.net"
       ]
     },
     {
       "name": "AVMOO 日本无码",
-      "link": "https://avsox.icu",
+      "link": "https://avsox.cyou",
       "legacies":[
+        "avme.pw",
+        "avsox.net",
+        "javkey.com",
+        "javfee.com",
+        "javpee.com",
+        "avso.pw",
+        "avso.club"
       ]
     },
-	{
+    {
       "name": "AVMOO 欧美",
       "link": "https://avmemo.asia",
       "legacies":[
-	  ]
-	}
+
+      ]
+    }
   ]
 }

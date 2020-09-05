@@ -3,6 +3,13 @@ package io.github.javiewer.activity;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.WindowManager;
 
+/**
+ * SecureActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: 基础Activity
+ */
 public class SecureActivity extends AppCompatActivity {
 
     @Override

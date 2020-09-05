@@ -32,6 +32,14 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/**
+ * WebViewActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: 打开网页
+ */
+
 public class WebViewActivity extends SecureActivity {
 
     public static OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(new Interceptor() {

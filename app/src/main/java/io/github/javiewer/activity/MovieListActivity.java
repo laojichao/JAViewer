@@ -10,6 +10,14 @@ import io.github.javiewer.R;
 import io.github.javiewer.fragment.MovieListFragment;
 import io.github.javiewer.view.ViewUtil;
 
+/**
+ * MovieListActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: 电影列表
+ */
+
 public class MovieListActivity extends SecureActivity {
 
     public static Intent newIntent(Context context, String title, String link) {

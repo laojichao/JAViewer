@@ -16,6 +16,14 @@ import io.github.javiewer.R;
 import io.github.javiewer.adapter.ViewPagerAdapter;
 import io.github.javiewer.fragment.DownloadFragment;
 
+/**
+ * DownloadActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: bt Download
+ */
+
 public class DownloadActivity extends SecureActivity {
 
     @BindView(R.id.download_toolbar)
@@ -46,19 +54,33 @@ public class DownloadActivity extends SecureActivity {
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         Fragment fragment;
-
+        //BTSO
         fragment = new DownloadFragment();
         bundle = (Bundle) bundle.clone();
         bundle.putString("provider", "btso");
         fragment.setArguments(bundle);
         adapter.addFragment(fragment, "BTSO");
 
-/**        fragment = new DownloadFragment();
+        //torrentkitty
+        fragment = new DownloadFragment();
         bundle = (Bundle) bundle.clone();
         bundle.putString("provider", "torrentkitty");
         fragment.setArguments(bundle);
         adapter.addFragment(fragment, "Torrent Kitty");
- **/
+
+        //白虎
+        fragment = new DownloadFragment();
+        bundle = (Bundle) bundle.clone();
+        bundle.putString("provider", "bh");
+        fragment.setArguments(bundle);
+        adapter.addFragment(fragment, "白虎");
+
+        fragment = new DownloadFragment();
+        bundle = (Bundle) bundle.clone();
+        bundle.putString("provider", "btmovi");
+        fragment.setArguments(bundle);
+        adapter.addFragment(fragment, "磁力蜘蛛");
+
         mViewPager.setAdapter(adapter);
 
         mTabLayout.setupWithViewPager(mViewPager);

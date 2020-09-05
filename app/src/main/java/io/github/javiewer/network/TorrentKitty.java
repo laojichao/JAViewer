@@ -9,12 +9,21 @@ import retrofit2.http.Headers;
 import retrofit2.http.Path;
 import retrofit2.http.Url;
 
-/**
- * Project: JAViewer
- */
-public interface TorrentKitty {
 
+/**
+ * TorrentKitty
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: TorrentKitty
+ */
+
+public interface TorrentKitty {
+    //地址发布页：
+    String POST_URL = "http://torrentkittyurl.com/tk/";
     String BASE_URL = "https://www.torrentkitty.tv";
+    String BASE_URL1 = "https://www.torrentkitty.app";
+    String BASE_URL2 = "https://www.torrentkitty.se";
     TorrentKitty INSTANCE = new Retrofit.Builder()
             .baseUrl(TorrentKitty.BASE_URL)
             .client(JAViewer.HTTP_CLIENT)

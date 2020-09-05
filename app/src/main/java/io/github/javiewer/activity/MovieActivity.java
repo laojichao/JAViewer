@@ -61,6 +61,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * MovieActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: 电影详情页
+ */
 public class MovieActivity extends SecureActivity {
 
     public Movie movie;

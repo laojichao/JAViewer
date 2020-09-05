@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +35,6 @@ import retrofit2.Response;
  * Project: JAViewer
  */
 public class DownloadLinkAdapter extends ItemAdapter<DownloadLink, DownloadLinkAdapter.ViewHolder> {
-
     private Activity mParentActivity;
 
     private DownloadLinkProvider provider;
@@ -67,7 +68,6 @@ public class DownloadLinkAdapter extends ItemAdapter<DownloadLink, DownloadLinkA
                     mDialog.setIndeterminate(false);
                     mDialog.setCancelable(false);
                     mDialog.show();
-
                     Call<ResponseBody> call = provider.get(link.getLink());
                     call.enqueue(new Callback<ResponseBody>() {
                         @Override
@@ -78,7 +78,6 @@ public class DownloadLinkAdapter extends ItemAdapter<DownloadLink, DownloadLinkA
                             } catch (Throwable e) {
                                 onFailure(call, e);
                             }
-
                             mDialog.dismiss();
                         }
 

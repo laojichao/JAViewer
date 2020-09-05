@@ -49,6 +49,13 @@ import io.github.javiewer.fragment.genre.GenreTabsFragment;
 import io.github.javiewer.network.BasicService;
 import io.github.javiewer.view.SimpleSearchView;
 
+/**
+ * MainActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: 主页
+ */
 public class MainActivity extends SecureActivity {
 
     public static final int ID_HOME = 1;

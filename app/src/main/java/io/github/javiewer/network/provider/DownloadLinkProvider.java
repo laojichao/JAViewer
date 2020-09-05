@@ -17,6 +17,10 @@ public abstract class DownloadLinkProvider {
                 return new BTSOLinkProvider();
             case "torrentkitty":
                 return new TorrentKittyLinkProvider();
+            case "bh":
+                return new BHLinkProvider();
+            case "btmovi":
+                return new BTMOVILinkProvider();
             default:
                 return null;
         }

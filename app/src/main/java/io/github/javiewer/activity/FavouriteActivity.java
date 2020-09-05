@@ -18,6 +18,13 @@ import io.github.javiewer.fragment.favourite.FavouriteActressFragment;
 import io.github.javiewer.fragment.favourite.FavouriteFragment;
 import io.github.javiewer.fragment.favourite.FavouriteMovieFragment;
 
+/**
+ * FavouriteActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: 收藏夹
+ */
 public class FavouriteActivity extends SecureActivity {
 
     public static ViewPagerAdapter mAdapter;

@@ -34,6 +34,14 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/**
+ * StartActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: 开始检查更新界面
+ */
+
 public class StartActivity extends AppCompatActivity {
 
 
@@ -46,8 +54,9 @@ public class StartActivity extends AppCompatActivity {
     }
 
     public void readProperties() {
+        //读取数据更新包的下载源
         Request request = new Request.Builder()
-                .url("https://raw.githubusercontent.com/SeanChengN/JAViewer/fuck/properties.json?t=" + System.currentTimeMillis() / 1000)
+                .url("https://github.com/ccclao/JAViewer/blob/fuck/properties.json?t=" + System.currentTimeMillis() / 1000)
                 .build();
         JAViewer.HTTP_CLIENT.newCall(request).enqueue(new Callback() {
             @Override

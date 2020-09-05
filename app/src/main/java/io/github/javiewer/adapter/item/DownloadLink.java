@@ -38,4 +38,15 @@ public class DownloadLink extends Linkable {
     public String getMagnetLink() {
         return magnetLink.getMagnetLink();
     }
+
+    @Override
+    public String toString() {
+        return "DownloadLink{" +
+                "title='" + title + '\'' +
+                ", size='" + size + '\'' +
+                ", date='" + date + '\'' +
+                ", link='" + link + '\'' +
+                ", magnetLink=" + magnetLink +
+                '}';
+    }
 }

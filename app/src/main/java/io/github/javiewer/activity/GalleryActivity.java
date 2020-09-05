@@ -44,6 +44,13 @@ import io.github.javiewer.JAViewer;
 import io.github.javiewer.R;
 import io.github.javiewer.adapter.item.Movie;
 
+/**
+ * GalleryActivity
+ *
+ * @author lao
+ * @date 2020/9/4
+ * Profile: 画廊展示图
+ */
 public class GalleryActivity extends SecureActivity {
 
     private static final boolean AUTO_HIDE = true;
