@@ -56,7 +56,7 @@ public class StartActivity extends AppCompatActivity {
     public void readProperties() {
         //读取数据更新包的下载源
         Request request = new Request.Builder()
-                .url("https://github.com/ccclao/JAViewer/blob/fuck/properties.json?t=" + System.currentTimeMillis() / 1000)
+                .url("https://raw.githubusercontent.com/ipcjs/JAViewer/master/app/src/main/assets/properties.json?t=" + System.currentTimeMillis() / 1000)
                 .build();
         JAViewer.HTTP_CLIENT.newCall(request).enqueue(new Callback() {
             @Override
