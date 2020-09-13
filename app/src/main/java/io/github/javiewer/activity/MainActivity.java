@@ -143,7 +143,7 @@ public class MainActivity extends SecureActivity {
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withIdentifier(ID_GITHUB1).withName("SeanChengN").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false),
                         new PrimaryDrawerItem().withIdentifier(ID_GITHUB2).withName("SplashCodes").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false),
-                        new PrimaryDrawerItem().withIdentifier(ID_GITHUB3).withName("cclao").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false)
+                        new PrimaryDrawerItem().withIdentifier(ID_GITHUB3).withName("ccclao").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false)
                 )
                 .withSelectedItem(ID_HOME)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -165,7 +165,7 @@ public class MainActivity extends SecureActivity {
                                 break;
                             }
                             case ID_GITHUB3: {
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/cclao/JAViewer/releases"));
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ccclao/JAViewer/releases"));
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
                                 break;
