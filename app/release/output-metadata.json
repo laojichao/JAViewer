@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "io.github.javiewer",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "properties": [],
+      "versionCode": 23,
+      "versionName": "2.0.2-0905",
+      "enabled": true,
+      "outputFile": "app-release.apk"
+    }
+  ]
+}
