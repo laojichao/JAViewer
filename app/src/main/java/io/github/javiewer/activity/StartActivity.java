@@ -4,11 +4,14 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,8 +22,14 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -44,7 +53,6 @@ import okhttp3.Response;
 
 public class StartActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,13 +62,16 @@ public class StartActivity extends AppCompatActivity {
     }
 
     public void readProperties() {
+
         //读取数据更新包的下载源
+        final String url = "https://raw.githubusercontent.com/ipcjs/JAViewer/master/app/src/main/assets/properties.json";
         Request request = new Request.Builder()
                 .url("http://120.24.61.225:8080/talker/properties.json?t=" + System.currentTimeMillis() / 1000)
                 .build();
         JAViewer.HTTP_CLIENT.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                readLocalProperties();
             }
 
             @Override
@@ -76,6 +87,48 @@ public class StartActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void readLocalProperties() {
+
+        try {
+            AssetManager assetManager = getAssets(); //获得assets资源管理器（assets中的文件无法直接访问，可以使用AssetManager访问）
+            InputStreamReader inputStreamReader = new InputStreamReader(assetManager.open("properties.json"),"UTF-8"); //使用IO流读取json文件内容
+            BufferedReader br = new BufferedReader(inputStreamReader);//使用字符高效流
+            String line;
+            StringBuilder builder = new StringBuilder();
+            while ((line = br.readLine())!=null){
+                builder.append(line);
+            }
+            br.close();
+            inputStreamReader.close();
+
+            final Properties properties = JAViewer.parseJson(Properties.class, builder.toString());
+            if (properties != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleProperties(properties);
+                    }
+                });
+            }
+
+/*            JSONObject testJson = new JSONObject(builder.toString()); // 从builder中读取了json中的数据。
+            // 直接传入JSONObject来构造一个实例
+            JSONArray array = testJson.getJSONArray("banks");
+
+            Log.e("banks",array.toString());
+
+            for (int i = 0;i<array.length();i++){
+                JSONObject jsonObject = array.getJSONObject(i);
+                String text = jsonObject.getString("text");
+                String value = jsonObject.getString("value");
+                Log.e("tag", "initData: "+text+value);
+            }*/
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void handleProperties(Properties properties) {
