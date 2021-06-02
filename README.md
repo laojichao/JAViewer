@@ -25,6 +25,10 @@ A4. 必定与网络有关，搭梯子/换线路/换梯子。
 A5. 用带有文本查找替换功能的应用（比如MT管理器）打开 properties.json 文件（通常在根目录 JAViewer 文件夹内），查找 avmoo.asia 全部替换为 avmask.com 并保存，然后重启应用。**以后网址再改变的话，也是同样操作，我会在此处标注需要替换的内容。**
 > 嫌麻烦的话，删掉旧收藏再重新收藏也行。
 
+`avmoo.cyou/cn/ > avmoo.casa/tw/`
+`avsox.site > avsox.website/tw/`
+`avmemo.asia > avmemo.asia/cn/` 2021/6/2
+
 `avmoo.site > avmoo.cyou/cn/` 2020/12/12
 
 `avmoo.host > avmoo.site` 2020/10/5
