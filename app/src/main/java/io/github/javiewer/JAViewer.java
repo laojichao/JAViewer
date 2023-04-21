@@ -49,7 +49,7 @@ import retrofit2.Retrofit;
 public class JAViewer extends Application {
     final static String webkit = (int)(System.currentTimeMillis() % 550)+"."+(int)(System.currentTimeMillis() % 99);
     final static String chrome = (int)(System.currentTimeMillis() % 4000)+"."+(int)(System.currentTimeMillis() % 999);
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/"+webkit+" (KHTML, like Gecko) Chrome/80.0."+chrome+" Safari/"+webkit;
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/"+webkit+" (KHTML, like Gecko) Chrome/89.0."+chrome+" Safari/"+webkit;
     public static final List<DataSource> DATA_SOURCES = new ArrayList<>();
     public static final Map<Integer, Class<? extends Fragment>> FRAGMENTS = new HashMap<Integer, Class<? extends Fragment>>() {{
         put(R.id.nav_home, HomeFragment.class);
@@ -64,14 +64,12 @@ public class JAViewer extends Application {
     public static Map<String, String> hostReplacements = new HashMap<>();
     public static final OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
         @Override
-        public Response intercept(Interceptor.Chain chain) throws IOException {
+        public Response intercept(Chain chain) throws IOException {
             Request original = chain.request();
-
             Request request = original.newBuilder()
                     .url(replaceUrl(original.url()))
                     .header("User-Agent", USER_AGENT)
                     .build();
-
             return chain.proceed(request);
         }
     })
