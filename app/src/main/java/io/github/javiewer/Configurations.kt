@@ -13,6 +13,9 @@ class Configurations {
     @Transient
     private var file: File? = null
 
+    @Transient
+    private val gson: Gson = Gson()
+
     private var starred_movies: ArrayList<Movie>? = null
     private var starred_actresses: ArrayList<Actress>? = null
     private var data_source: DataSource? = null
@@ -42,7 +45,7 @@ class Configurations {
         val f = file ?: return
         try {
             FileWriter(f).use { writer ->
-                Gson().toJson(this, writer)
+                gson.toJson(this, writer)
                 writer.flush()
             }
         } catch (e: Exception) {
@@ -66,7 +69,7 @@ class Configurations {
         @JvmStatic
         fun load(file: File): Configurations {
             val config: Configurations? = try {
-                JAViewer.parseJson(Configurations::class.java, FileReader(file))
+                JAViewer.parseJson(Configurations::class.java, com.google.gson.stream.JsonReader(FileReader(file)))
             } catch (_: Exception) {
                 null
             }

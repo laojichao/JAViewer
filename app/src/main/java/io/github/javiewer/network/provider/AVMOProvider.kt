@@ -18,6 +18,7 @@ object AVMOProvider {
             val span = box.select("div.photo-info > span").first() ?: continue
             val hot = span.getElementsByTag("i").isNotEmpty()
             val date = span.select("date")
+            if (date.size < 2) continue
             movies.add(
                 Movie.create(
                     title = img.attr("title"),

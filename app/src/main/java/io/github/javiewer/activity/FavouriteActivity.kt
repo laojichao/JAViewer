@@ -2,6 +2,7 @@ package io.github.javiewer.activity
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.core.content.ContextCompat
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager
@@ -62,7 +63,7 @@ class FavouriteActivity : SecureActivity() {
         val navigationAdapter = AHBottomNavigationAdapter(this, R.menu.nav_favourite)
         navigationAdapter.setupWithBottomNavigation(binding.bottomNavigation)
         binding.bottomNavigation.setTranslucentNavigationEnabled(true)
-        binding.bottomNavigation.setAccentColor(getColor(R.color.colorPrimary))
+        binding.bottomNavigation.setAccentColor(ContextCompat.getColor(this, R.color.colorPrimary))
         binding.bottomNavigation.titleState = AHBottomNavigation.TitleState.ALWAYS_SHOW
         binding.bottomNavigation.setOnTabSelectedListener { position, wasSelected ->
             if (!wasSelected) {
@@ -74,6 +75,7 @@ class FavouriteActivity : SecureActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
+            @Suppress("DEPRECATION")
             onBackPressed()
             return true
         }

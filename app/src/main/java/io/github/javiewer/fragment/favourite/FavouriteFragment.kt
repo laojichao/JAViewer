@@ -1,6 +1,7 @@
 package io.github.javiewer.fragment.favourite
 
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import io.github.javiewer.adapter.ItemAdapter
 import io.github.javiewer.adapter.item.Movie
@@ -13,12 +14,12 @@ abstract class FavouriteFragment : RecyclerFragment<Movie, LinearLayoutManager>(
         getAdapter()?.notifyDataSetChanged()
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setLayoutManager(LinearLayoutManager(context))
         setAdapter(adapter())
         mRefreshLayout.isEnabled = false
         decoration()?.let { mRecyclerView.addItemDecoration(it) }
-        super.onActivityCreated(savedInstanceState)
     }
 
     abstract fun adapter(): ItemAdapter<*, *>

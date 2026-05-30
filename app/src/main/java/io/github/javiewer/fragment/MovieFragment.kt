@@ -1,6 +1,7 @@
 package io.github.javiewer.fragment
 
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator
@@ -14,7 +15,8 @@ import retrofit2.Call
 
 abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setLayoutManager(LinearLayoutManager(context))
         mRecyclerView.addItemDecoration(MovieItemDecoration())
         setAdapter(SlideInBottomAnimationAdapter(MovieAdapter(getItems(), activity)))
@@ -36,7 +38,7 @@ abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
                 val wrappers = AVMOProvider.parseMovies(response.string())
                 val pos = getItems().size
                 getItems().addAll(wrappers)
-                getAdapter()?.notifyItemRangeInserted(pos, wrappers.size())
+                getAdapter()?.notifyItemRangeInserted(pos, wrappers.size)
             }
         })
 
@@ -45,7 +47,6 @@ abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
             getOnRefreshListener()?.onRefresh()
         }
 
-        super.onActivityCreated(savedInstanceState)
     }
 
     abstract fun newCall(page: Int): Call<ResponseBody>?

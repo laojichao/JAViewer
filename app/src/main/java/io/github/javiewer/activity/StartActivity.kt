@@ -102,7 +102,7 @@ class StartActivity : AppCompatActivity() {
 
         if (properties.getLatestVersionCode() > 0 && currentVersion < properties.getLatestVersionCode()) {
             var message = "新版本：${properties.getLatestVersion()}"
-            properties.getChangelog()?.let {
+            properties.changelog?.let {
                 message += "\n\n更新日志：\n\n$it\n"
             }
             AlertDialog.Builder(this)
@@ -129,7 +129,7 @@ class StartActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
             checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
-            Dexter.withActivity(this)
+            Dexter.withContext(this)
                 .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .withListener(object : PermissionListener {
                     override fun onPermissionGranted(response: PermissionGrantedResponse) {

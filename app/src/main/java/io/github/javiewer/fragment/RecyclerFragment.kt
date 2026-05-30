@@ -65,10 +65,12 @@ abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment()
             ContextCompat.getColor(requireContext(), R.color.googleYellow)
         )
         if (savedInstanceState != null) {
+            @Suppress("DEPRECATION")
             getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("LayoutManagerState"))
-            @Suppress("UNCHECKED_CAST")
-            setItems(savedInstanceState.getParcelableArrayList<I>("Items") as ArrayList<I>)
-            getOnScrollListener()?.restoreState(savedInstanceState.getBundle("ScrollListenerState"))
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
+            val items = savedInstanceState.getParcelableArrayList<android.os.Parcelable>("Items") as? ArrayList<I>
+            if (items != null) setItems(items)
+            getOnScrollListener()?.restoreState(savedInstanceState.getBundle("ScrollListenerState") ?: Bundle())
         }
     }
 

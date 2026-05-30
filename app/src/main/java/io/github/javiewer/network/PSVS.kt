@@ -1,5 +1,6 @@
 package io.github.javiewer.network
 
+import io.github.javiewer.JAViewer
 import io.github.javiewer.network.item.AvgleSearchResult
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -14,7 +15,7 @@ interface PSVS {
     fun search(@Query("kw") keyword: String): Call<AvgleSearchResult>
 
     companion object {
-        const val BASE_URL = "http://api.rekonquer.com"
+        const val BASE_URL = "https://api.rekonquer.com"
 
         val INSTANCE: PSVS = Retrofit.Builder()
             .baseUrl(BASE_URL)

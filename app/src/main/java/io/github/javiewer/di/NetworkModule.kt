@@ -23,6 +23,6 @@ object NetworkModule {
         if (JAViewer.SERVICE == null) {
             JAViewer.recreateService()
         }
-        return JAViewer.SERVICE!!
+        return JAViewer.SERVICE ?: throw IllegalStateException("BasicService not initialized. Check data source configuration.")
     }
 }

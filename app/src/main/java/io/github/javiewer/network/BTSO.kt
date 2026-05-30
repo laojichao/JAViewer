@@ -1,5 +1,6 @@
 package io.github.javiewer.network
 
+import io.github.javiewer.JAViewer
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Retrofit

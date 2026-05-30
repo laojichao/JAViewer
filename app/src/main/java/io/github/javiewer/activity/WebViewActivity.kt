@@ -133,6 +133,7 @@ class WebViewActivity : SecureActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
+        @Suppress("DEPRECATION")
         onBackPressed()
         return true
     }

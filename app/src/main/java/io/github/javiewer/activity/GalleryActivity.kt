@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
@@ -35,7 +36,7 @@ class GalleryActivity : SecureActivity() {
     private lateinit var imageUrls: Array<String>
     private var movie: Movie? = null
     private var mVisible = false
-    private val handler = Handler()
+    private val handler = Handler(Looper.getMainLooper())
 
     private val fadeIn = AlphaAnimation(0f, 1f).apply { duration = 150 }
     private val fadeOut = AlphaAnimation(1f, 0f).apply { duration = 150 }
@@ -167,6 +168,8 @@ class GalleryActivity : SecureActivity() {
                         }
                     }
 
+                    override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {}
+
                     private fun onLoadFailed(e: Exception) {
                         Toast.makeText(this@GalleryActivity, "保存失败: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
@@ -177,6 +180,7 @@ class GalleryActivity : SecureActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
+        @Suppress("DEPRECATION")
         onBackPressed()
         return true
     }
@@ -204,6 +208,8 @@ class GalleryActivity : SecureActivity() {
                         binding.progressBar.visibility = View.GONE
                         binding.image.setImageDrawable(resource)
                     }
+
+                    override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {}
 
                     override fun onLoadFailed(errorDrawable: android.graphics.drawable.Drawable?) {
                         super.onLoadFailed(errorDrawable)

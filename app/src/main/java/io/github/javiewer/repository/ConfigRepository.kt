@@ -45,9 +45,7 @@ class ConfigRepository @Inject constructor() {
             JAViewer.CONFIGURATIONS?.save()
             false
         } else {
-            starred.reverse()
-            starred.add(movie)
-            starred.reverse()
+            starred.add(0, movie)
             JAViewer.CONFIGURATIONS?.save()
             true
         }
@@ -63,9 +61,7 @@ class ConfigRepository @Inject constructor() {
             JAViewer.CONFIGURATIONS?.save()
             false
         } else {
-            starred.reverse()
-            starred.add(actress)
-            starred.reverse()
+            starred.add(0, actress)
             JAViewer.CONFIGURATIONS?.save()
             true
         }

@@ -69,28 +69,29 @@ class DownloadLinkAdapter(
     }
 
     private fun onMagnetGet(magnetLink: String?) {
+        val act = activity ?: return
         if (!magnetLink.isNullOrEmpty()) {
-            AlertDialog.Builder(activity!!)
+            AlertDialog.Builder(act)
                 .setTitle("磁力链接")
                 .setMessage(magnetLink)
                 .setNeutralButton("复制到剪贴板") { _, _ ->
-                    val clip = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = act.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     clip.setPrimaryClip(ClipData.newPlainText("magnet-link", magnetLink))
-                    Toast.makeText(activity, "磁力链接：$magnetLink 已复制到剪贴板", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(act, "磁力链接：$magnetLink 已复制到剪贴板", Toast.LENGTH_SHORT).show()
                 }
                 .setPositiveButton("打开") { _, _ ->
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(magnetLink))
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    activity.startActivity(intent)
+                    act.startActivity(intent)
                 }
                 .setNegativeButton("取消", null)
                 .show()
         } else {
-            Toast.makeText(activity, "磁力链接获取失败", Toast.LENGTH_SHORT).show()
+            Toast.makeText(act, "磁力链接获取失败", Toast.LENGTH_SHORT).show()
         }
     }
 
-    class ViewHolder(private val binding: LayoutDownloadBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(val binding: LayoutDownloadBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(link: DownloadLink) {
             binding.downloadTitle.text = link.title
             binding.downloadSize.text = link.size

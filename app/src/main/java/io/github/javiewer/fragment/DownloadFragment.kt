@@ -1,6 +1,7 @@
 package io.github.javiewer.fragment
 
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator
@@ -24,9 +25,11 @@ class DownloadFragment : RecyclerFragment<DownloadLink, LinearLayoutManager>() {
         keyword = bundle?.getString("keyword") ?: ""
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setLayoutManager(LinearLayoutManager(context))
-        setAdapter(ScaleInAnimationAdapter(DownloadLinkAdapter(getItems(), activity, provider!!)))
+        val p = provider ?: return
+        setAdapter(ScaleInAnimationAdapter(DownloadLinkAdapter(getItems(), activity, p)))
         mRecyclerView.addItemDecoration(DownloadItemDecoration())
 
         val animator = SlideInUpAnimator()
@@ -44,7 +47,7 @@ class DownloadFragment : RecyclerFragment<DownloadLink, LinearLayoutManager>() {
 
             override fun onResult(response: ResponseBody) {
                 super.onResult(response)
-                val downloads = provider!!.parseDownloadLinks(response.string())
+                val downloads = provider?.parseDownloadLinks(response.string()) ?: return
                 val pos = getItems().size
                 if (downloads.isEmpty()) {
                     setEnd(true)
@@ -60,6 +63,5 @@ class DownloadFragment : RecyclerFragment<DownloadLink, LinearLayoutManager>() {
             getOnRefreshListener()?.onRefresh()
         }
 
-        super.onActivityCreated(savedInstanceState)
     }
 }

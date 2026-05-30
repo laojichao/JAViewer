@@ -42,9 +42,9 @@ class MovieHeaderAdapter(
             holder.binding.headerName.text = header.name
             holder.binding.headerValue.text = header.value
 
-            if (header.link != null) {
+            if (header.link != null && activity != null) {
                 holder.binding.headerValue.paintFlags = holder.binding.headerValue.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-                holder.binding.headerValue.setTextColor(ResourcesCompat.getColor(activity!!.resources, R.color.colorAccent, null))
+                holder.binding.headerValue.setTextColor(ResourcesCompat.getColor(activity.resources, R.color.colorAccent, null))
                 holder.binding.headerValue.setOnClickListener {
                     activity.startActivity(MovieListActivity.newIntent(activity, "${header.name} ${header.value}", header.link!!))
                 }

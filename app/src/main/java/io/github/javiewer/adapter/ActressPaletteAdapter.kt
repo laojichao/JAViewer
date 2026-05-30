@@ -57,6 +57,8 @@ class ActressPaletteAdapter(
                         }
                     } catch (_: Exception) {}
                 }
+
+                override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {}
             })
     }
 

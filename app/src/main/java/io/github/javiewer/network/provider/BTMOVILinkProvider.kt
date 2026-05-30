@@ -19,7 +19,7 @@ class BTMOVILinkProvider : DownloadLinkProvider() {
         for (row in rows) {
             try {
                 val a = row.getElementsByTag("a").first() ?: continue
-                val url = "http://www.btmovi.space" + a.attr("href")
+                val url = "https://www.btmovi.space" + a.attr("href")
                 links.add(
                     DownloadLink.create(
                         row.getElementsByClass("item-title").first()?.text() ?: "",

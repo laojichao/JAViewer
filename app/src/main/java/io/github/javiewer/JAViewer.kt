@@ -12,6 +12,7 @@ import com.google.gson.JsonParseException
 import com.google.gson.stream.JsonReader
 import dagger.hilt.android.HiltAndroidApp
 import io.github.javiewer.adapter.item.DataSource
+import io.github.javiewer.network.BasicService
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -39,9 +40,11 @@ class JAViewer : Application() {
         val DATA_SOURCES: MutableList<DataSource> = mutableListOf()
 
         @JvmField
+        @Volatile
         var CONFIGURATIONS: Configurations? = null
 
         @JvmField
+        @Volatile
         var SERVICE: BasicService? = null
 
         @JvmField
@@ -60,7 +63,7 @@ class JAViewer : Application() {
                 chain.proceed(request)
             })
             .cookieJar(object : CookieJar {
-                private val cookieStore = mutableMapOf<HttpUrl, List<Cookie>>()
+                private val cookieStore = java.util.concurrent.ConcurrentHashMap<HttpUrl, List<Cookie>>()
 
                 override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                     cookieStore[url] = cookies
@@ -73,13 +76,14 @@ class JAViewer : Application() {
             .build()
 
         @JvmStatic
-        fun getDataSource(): DataSource = CONFIGURATIONS!!.getDataSource()
+        fun getDataSource(): DataSource = CONFIGURATIONS?.getDataSource() ?: DataSource.AVMO
 
         @JvmStatic
         fun recreateService() {
-            Log.d(TAG, "recreateService: ${getDataSource().link}")
+            val link = getDataSource().link ?: return
+            Log.d(TAG, "recreateService: $link")
             SERVICE = retrofit2.Retrofit.Builder()
-                .baseUrl(getDataSource().link!!)
+                .baseUrl(link)
                 .client(httpClient)
                 .build()
                 .create(BasicService::class.java)
@@ -94,7 +98,7 @@ class JAViewer : Application() {
 
         @JvmStatic
         fun replaceUrl(url: HttpUrl): HttpUrl {
-            val host = url.host
+            val host = url.host()
             val replacement = hostReplacements[host] ?: return url
             return url.newBuilder().host(replacement).build()
         }

@@ -21,24 +21,23 @@ class ActressLongClickListener(
         val contain = actresses.contains(actress)
         val items = if (contain) arrayOf("复制女优名字", "取消收藏") else arrayOf("复制女优名字", "收藏")
 
-        AlertDialog.Builder(activity!!)
+        val act = activity ?: return true
+        AlertDialog.Builder(act)
             .setTitle(actress.name)
             .setItems(items) { _, which ->
                 when (which) {
                     0 -> {
-                        val clip = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = act.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         clip.setPrimaryClip(ClipData.newPlainText("actress", actress.name))
-                        Toast.makeText(activity, "已复制到剪贴板", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(act, "已复制到剪贴板", Toast.LENGTH_SHORT).show()
                     }
                     1 -> {
                         if (contain) {
                             actresses.remove(actress)
-                            Toast.makeText(activity, "已取消收藏", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(act, "已取消收藏", Toast.LENGTH_SHORT).show()
                         } else {
-                            actresses.reverse()
-                            actresses.add(actress)
-                            actresses.reverse()
-                            Toast.makeText(activity, "已收藏", Toast.LENGTH_SHORT).show()
+                            actresses.add(0, actress)
+                            Toast.makeText(act, "已收藏", Toast.LENGTH_SHORT).show()
                         }
                         JAViewer.CONFIGURATIONS?.save()
                         FavouriteActivity.update()

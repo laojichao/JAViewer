@@ -1,6 +1,7 @@
 package io.github.javiewer.fragment
 
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.javiewer.JAViewer
 import io.github.javiewer.adapter.ActressAdapter
@@ -13,7 +14,8 @@ import retrofit2.Call
 
 class ActressesFragment : RecyclerFragment<Actress, LinearLayoutManager>() {
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setLayoutManager(LinearLayoutManager(context))
         setAdapter(ActressAdapter(getItems(), activity))
         mRecyclerView.addItemDecoration(ActressItemDecoration())
@@ -32,7 +34,7 @@ class ActressesFragment : RecyclerFragment<Actress, LinearLayoutManager>() {
                 val wrappers = AVMOProvider.parseActresses(response.string())
                 val pos = getItems().size
                 getItems().addAll(wrappers)
-                getAdapter()?.notifyItemRangeInserted(pos, wrappers.size())
+                getAdapter()?.notifyItemRangeInserted(pos, wrappers.size)
             }
         })
 
@@ -41,6 +43,5 @@ class ActressesFragment : RecyclerFragment<Actress, LinearLayoutManager>() {
             getOnRefreshListener()?.onRefresh()
         }
 
-        super.onActivityCreated(savedInstanceState)
     }
 }

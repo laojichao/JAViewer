@@ -115,7 +115,7 @@ class SimpleVideoPlayer : JZVideoPlayerStandard {
         if (id == cn.jzvd.R.id.surface_container) {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    Log.i(TAG, "onTouch surfaceContainer actionDown [$hashCode()] ")
+                    Log.i(TAG, "onTouch surfaceContainer actionDown [${hashCode()}] ")
                     mTouchingProgressBar = true
                     mDownX = x
                     mDownY = y
@@ -143,10 +143,10 @@ class SimpleVideoPlayer : JZVideoPlayerStandard {
                                         val lp = JZUtils.getWindow(context).attributes
                                         mGestureDownBrightness = if (lp.screenBrightness < 0) {
                                             try {
-                                                Settings.System.getInt(context.contentResolver, Settings.System.SCREEN_BRIGHTNESS)
-                                            } catch (_: Exception) { 0 }
+                                                Settings.System.getInt(context.contentResolver, Settings.System.SCREEN_BRIGHTNESS).toFloat()
+                                            } catch (_: Exception) { 0f }
                                         } else {
-                                            (lp.screenBrightness * 255).toInt()
+                                            lp.screenBrightness * 255f
                                         }
                                     } else {
                                         mChangeVolume = true

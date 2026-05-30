@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
-import com.robertlevonyan.views.chip.Chip
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.javiewer.JAViewer
 import io.github.javiewer.R
@@ -55,10 +55,10 @@ class MovieActivity : SecureActivity() {
 
         @Suppress("DEPRECATION")
         movie = if (android.os.Build.VERSION.SDK_INT >= 33) {
-            intent.getParcelableExtra("movie", Movie::class.java)!!
+            intent.getParcelableExtra("movie", Movie::class.java)
         } else {
-            intent.getParcelableExtra("movie")!!
-        }
+            intent.getParcelableExtra("movie")
+        } ?: run { finish(); return }
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -153,7 +153,7 @@ class MovieActivity : SecureActivity() {
                         startActivity(MovieListActivity.newIntent(this, genre.name, genre.link!!))
                     }
                 }
-                chip.setChipText(genre.name)
+                chip.text = genre.name
                 genreBinding.genreFlowLayout.addView(view)
                 if (i == 0) ViewUtil.alignIconToView(genreBinding.movieIconGenre, view)
             }
@@ -173,6 +173,7 @@ class MovieActivity : SecureActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
+            @Suppress("DEPRECATION")
             onBackPressed()
             return true
         }
@@ -218,12 +219,13 @@ class MovieActivity : SecureActivity() {
     }
 
     private fun getScreenBitmap(): Bitmap {
+        val contentView = binding.movieContent.root
         val imageHeight = binding.toolbarLayoutBackground.height
         var scrollViewHeight = 0
-        for (i in 0 until binding.movieContent.childCount) {
-            scrollViewHeight += binding.movieContent.getChildAt(i).height
+        for (i in 0 until contentView.childCount) {
+            scrollViewHeight += contentView.getChildAt(i).height
         }
-        val result = Bitmap.createBitmap(binding.movieContent.width, imageHeight + scrollViewHeight, Bitmap.Config.ARGB_8888)
+        val result = Bitmap.createBitmap(contentView.width, imageHeight + scrollViewHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
         canvas.drawColor(Color.parseColor("#FAFAFA"))
 
@@ -231,8 +233,8 @@ class MovieActivity : SecureActivity() {
         binding.toolbarLayoutBackground.draw(Canvas(bitmap1))
         canvas.drawBitmap(bitmap1, 0f, 0f, null)
 
-        val bitmap2 = Bitmap.createBitmap(binding.movieContent.width, scrollViewHeight, Bitmap.Config.ARGB_8888)
-        binding.movieContent.draw(Canvas(bitmap2))
+        val bitmap2 = Bitmap.createBitmap(contentView.width, scrollViewHeight, Bitmap.Config.ARGB_8888)
+        contentView.draw(Canvas(bitmap2))
         canvas.drawBitmap(bitmap2, 0f, imageHeight.toFloat(), null)
 
         return result
@@ -275,7 +277,7 @@ class MovieActivity : SecureActivity() {
         if (video != null) {
             cn.jzvd.JZVideoPlayerStandard.startFullscreen(
                 this, SimpleVideoPlayer::class.java,
-                "http://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}",
+                "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}",
                 movie.title
             )
             return
@@ -289,7 +291,7 @@ class MovieActivity : SecureActivity() {
                         video = result.response.videos[0]
                         cn.jzvd.JZVideoPlayerStandard.startFullscreen(
                             this@MovieActivity, SimpleVideoPlayer::class.java,
-                            "http://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}",
+                            "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}",
                             movie.title
                         )
                         dialog.dismiss()

@@ -1,6 +1,7 @@
 package io.github.javiewer.fragment.genre
 
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.javiewer.adapter.GenreAdapter
 import io.github.javiewer.adapter.item.Genre
@@ -13,11 +14,11 @@ class GenreFragment : RecyclerFragment<Genre, LinearLayoutManager>() {
 
     fun getGenres(): MutableList<Genre> = genres
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setLayoutManager(LinearLayoutManager(context))
         setAdapter(GenreAdapter(genres, activity))
         mRecyclerView.addItemDecoration(GridSpacingItemDecoration(2, 16, true))
         mRefreshLayout.isEnabled = false
-        super.onActivityCreated(savedInstanceState)
     }
 }

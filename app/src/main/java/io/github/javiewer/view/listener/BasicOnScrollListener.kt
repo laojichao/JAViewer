@@ -108,8 +108,9 @@ abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
         get() = loading
         set(value) { loading = value }
 
+    @JvmName("setLoadingFlag")
     fun setLoading(value: Boolean) { loading = value }
 
-    fun isEnd(): Boolean = end
+    open fun isEnd(): Boolean = end
     fun setEnd(value: Boolean) { end = value }
 }

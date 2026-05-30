@@ -86,7 +86,7 @@ class MainActivity : SecureActivity() {
 
         JAViewer.recreateService()
         savedState = savedInstanceState
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(binding.appBarMain.toolbar)
         initFragments()
         buildDrawer()
     }
@@ -94,7 +94,7 @@ class MainActivity : SecureActivity() {
     private fun buildDrawer() {
         val result = DrawerBuilder()
             .withActivity(this)
-            .withToolbar(binding.toolbar)
+            .withToolbar(binding.appBarMain.toolbar)
             .withHeader(R.layout.drawer_header)
             .addDrawerItems(
                 PrimaryDrawerItem().withIdentifier(ID_HOME).withName("主页").withIcon(R.drawable.ic_menu_home).withIconTintingEnabled(true),
@@ -111,7 +111,7 @@ class MainActivity : SecureActivity() {
             )
             .withSelectedItem(ID_HOME)
             .withOnDrawerItemClickListener(object : Drawer.OnDrawerItemClickListener {
-                override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*>): Boolean {
+                override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>): Boolean {
                     idOfDrawerItem = drawerItem.identifier
                     when (drawerItem.identifier) {
                         ID_GITHUB1 -> openUrl("https://github.com/SeanChengN/JAViewer/releases")
@@ -119,7 +119,7 @@ class MainActivity : SecureActivity() {
                         ID_GITHUB3 -> openUrl("https://github.com/ccclao/JAViewer/releases")
                         ID_FAV -> startActivity(Intent(this@MainActivity, FavouriteActivity::class.java))
                         else -> {
-                            if (drawerItem is AbstractBadgeableDrawerItem) {
+                            if (drawerItem is AbstractBadgeableDrawerItem<*>) {
                                 setFragment(drawerItem.identifier.toInt(), drawerItem.name.text)
                             }
                         }
@@ -178,7 +178,7 @@ class MainActivity : SecureActivity() {
         transaction.commit()
         currentFragment = fragment
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.appBar.elevation = if (fragment is ExtendedAppBarFragment) 0f else 4f * resources.displayMetrics.density
+            binding.appBarMain.appBar.elevation = if (fragment is ExtendedAppBarFragment) 0f else 4f * resources.displayMetrics.density
         }
     }
 
@@ -203,8 +203,8 @@ class MainActivity : SecureActivity() {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             return
         }
-        if (binding.searchView.isSearchOpen) {
-            binding.searchView.closeSearch()
+        if (binding.appBarMain.searchView.isSearchOpen) {
+            binding.appBarMain.searchView.closeSearch()
             return
         }
         if (System.currentTimeMillis() - firstClick > 2000L) {
@@ -218,8 +218,8 @@ class MainActivity : SecureActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         val item = menu.findItem(R.id.action_search)
-        binding.searchView.setMenuItem(item)
-        binding.searchView.setOnQueryTextListener(object : SimpleSearchView.OnQueryTextListener {
+        binding.appBarMain.searchView.setMenuItem(item)
+        binding.appBarMain.searchView.setOnQueryTextListener(object : SimpleSearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 try {
                     startActivity(
