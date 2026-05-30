@@ -1,0 +1,25 @@
+{
+  "latest_version": "2.0.0-fuck-0812",
+  "latest_version_code": "22",
+  "changelog": "**修改版更新**\n2.0.0-fuck-0812 \n修复BTSO",
+  "data_sources": [
+    {
+      "name": "AVMOO 日本",
+      "link": "https://avmoo.casa",
+      "legacies":[
+      ]
+    },
+    {
+      "name": "AVMOO 日本无码",
+      "link": "https://avsox.website",
+      "legacies":[
+      ]
+    },
+	{
+      "name": "AVMOO 欧美",
+      "link": "https://avmemo.asia",
+      "legacies":[
+	  ]
+	}
+  ]
+}

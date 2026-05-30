@@ -22,7 +22,7 @@ interface BH {
 
     @GET("/index/search.html")
     @Headers("Accept-Language: zh-CN,zh;q=0.8,en;q=0.6")
-    fun search(@Query("keyword") keyword: String): Call<ResponseBody>
+    fun searchByQuery(@Query("keyword") keyword: String): Call<ResponseBody>
 
     companion object {
         const val BASE_URL = "https://baihu7.xyz"

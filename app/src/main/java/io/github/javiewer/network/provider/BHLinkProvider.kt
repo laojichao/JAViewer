@@ -10,7 +10,7 @@ import retrofit2.Call
 class BHLinkProvider : DownloadLinkProvider() {
 
     override fun search(keyword: String, page: Int): Call<ResponseBody>? {
-        return if (page == 1) BH.INSTANCE.search(keyword) else null
+        return if (page == 1) BH.INSTANCE.searchByQuery(keyword) else null
     }
 
     override fun parseDownloadLinks(htmlContent: String): List<DownloadLink> {

@@ -10,7 +10,7 @@ import retrofit2.Call
 class BTMOVILinkProvider : DownloadLinkProvider() {
 
     override fun search(keyword: String, page: Int): Call<ResponseBody>? {
-        return if (page == 1) BTMOVI.INSTANCE.search(keyword) else null
+        return if (page == 1) BTMOVI.INSTANCE.searchSingle(keyword) else null
     }
 
     override fun parseDownloadLinks(htmlContent: String): List<DownloadLink> {

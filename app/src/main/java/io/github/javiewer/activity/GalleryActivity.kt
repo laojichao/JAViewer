@@ -148,7 +148,7 @@ class GalleryActivity : SecureActivity() {
             val m = movie ?: return super.onOptionsItemSelected(item)
             val dir = File(
                 JAViewer.getStorageDir(),
-                "/movies/[${m.code}] ${m.title}".replace(Regex("[^./\\\\:*?\"<>|]+"), "-")
+                "/movies/${m.code} ${m.title}".replace(Regex("[\\\\/:*?\"<>|\\[\\]]"), "-")
             )
             dir.mkdirs()
             val index = binding.galleryPager.currentItem

@@ -21,7 +21,7 @@ interface BTMOVI {
 
     @GET("/so/{keyword}.html")
     @Headers("Accept-Language: zh-CN,zh;q=0.8,en;q=0.6")
-    fun search(@Path("keyword") keyword: String): Call<ResponseBody>
+    fun searchSingle(@Path("keyword") keyword: String): Call<ResponseBody>
 
     companion object {
         const val BASE_URL = "https://btmovi.space"
