@@ -38,7 +38,7 @@ class ScreenshotAdapter(
             val bundle = Bundle().apply {
                 putStringArray("urls", urls)
                 putParcelable("movie", movie)
-                putInt("position", holder.adapterPosition)
+                putInt("position", holder.bindingAdapterPosition)
             }
             activity?.startActivity(android.content.Intent(activity, GalleryActivity::class.java).putExtras(bundle))
         }

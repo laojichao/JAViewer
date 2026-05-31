@@ -38,7 +38,8 @@ class DownloadLinkAdapter(
         holder.bind(link)
         holder.binding.layoutDownload.setOnClickListener {
             if (!link.hasMagnetLink()) {
-                val dialog = ProgressDialog(activity).apply {
+                val act = activity ?: return@setOnClickListener
+                val dialog = ProgressDialog(act).apply {
                     setTitle("请稍后")
                     setMessage("正在获取磁力链接")
                     setIndeterminate(false)
@@ -54,12 +55,12 @@ class DownloadLinkAdapter(
                         } catch (e: Throwable) {
                             onFailure(call, e)
                         }
-                        dialog.dismiss()
+                        if (activity != null && !activity.isFinishing) dialog.dismiss()
                     }
 
                     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                         t.printStackTrace()
-                        dialog.dismiss()
+                        if (activity != null && !activity.isFinishing) dialog.dismiss()
                     }
                 })
             } else {

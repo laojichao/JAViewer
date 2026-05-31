@@ -147,22 +147,23 @@ class GalleryActivity : SecureActivity() {
         if (item.itemId == R.id.action_save) {
             val m = movie ?: return super.onOptionsItemSelected(item)
             val dir = File(
-                JAViewer.getStorageDir(),
+                JAViewer.getStorageDir(this),
                 "/movies/${m.code} ${m.title}".replace(Regex("[\\\\/:*?\"<>|\\[\\]]"), "-")
             )
             dir.mkdirs()
             val index = binding.galleryPager.currentItem
-            Glide.with(this)
+            Glide.with(applicationContext)
                 .asBitmap()
                 .load(imageUrls[index])
                 .into(object : CustomTarget<Bitmap>() {
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                         try {
-                            val os = BufferedOutputStream(FileOutputStream(File(dir, "${index + 1}.jpeg")))
-                            resource.compress(Bitmap.CompressFormat.JPEG, 100, os)
-                            os.flush()
-                            os.close()
-                            Toast.makeText(this@GalleryActivity, "成功保存到 $dir", Toast.LENGTH_SHORT).show()
+                            BufferedOutputStream(FileOutputStream(File(dir, "${index + 1}.jpeg"))).use { os ->
+                                resource.compress(Bitmap.CompressFormat.JPEG, 100, os)
+                            }
+                            if (!isFinishing && !isDestroyed) {
+                                Toast.makeText(this@GalleryActivity, "成功保存到 $dir", Toast.LENGTH_SHORT).show()
+                            }
                         } catch (e: Exception) {
                             onLoadFailed(e)
                         }
@@ -171,12 +172,19 @@ class GalleryActivity : SecureActivity() {
                     override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {}
 
                     private fun onLoadFailed(e: Exception) {
-                        Toast.makeText(this@GalleryActivity, "保存失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        if (!isFinishing && !isDestroyed) {
+                            Toast.makeText(this@GalleryActivity, "保存失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 })
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     override fun onSupportNavigateUp(): Boolean {

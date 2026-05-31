@@ -3,7 +3,6 @@ package io.github.javiewer.view.decoration
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 
 class GridSpacingItemDecoration(
     private val spanCount: Int,
@@ -12,8 +11,8 @@ class GridSpacingItemDecoration(
 ) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-        val lp = view.layoutParams as StaggeredGridLayoutManager.LayoutParams
-        val position = lp.spanIndex
+        val position = parent.getChildAdapterPosition(view)
+        if (position == RecyclerView.NO_POSITION) return
         val column = position % spanCount
 
         if (includeEdge) {

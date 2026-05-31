@@ -32,6 +32,7 @@ class FavouriteTabsFragment : ExtendedAppBarFragment() {
     }
 
     override fun onDestroyView() {
+        mAdapter = null
         super.onDestroyView()
         _binding = null
     }

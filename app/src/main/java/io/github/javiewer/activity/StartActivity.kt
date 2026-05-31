@@ -55,7 +55,7 @@ class StartActivity : AppCompatActivity() {
                 try {
                     val body = response.body() ?: run { readLocalProperties(); return }
                     val properties = JAViewer.parseJson(Properties::class.java, body.string())
-                    if (properties != null) {
+                    if (properties != null && !isFinishing) {
                         Handler(Looper.getMainLooper()).post { handleProperties(properties) }
                     }
                 } catch (_: IOException) {
@@ -71,7 +71,7 @@ class StartActivity : AppCompatActivity() {
         try {
             val json = assets.open("properties.json").bufferedReader().use { it.readText() }
             val properties = JAViewer.parseJson(Properties::class.java, json)
-            if (properties != null) {
+            if (properties != null && !isFinishing) {
                 Handler(Looper.getMainLooper()).post { handleProperties(properties) }
             }
         } catch (e: IOException) {
@@ -80,6 +80,7 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun handleProperties(properties: Properties) {
+        if (isFinishing || isDestroyed) return
         JAViewer.DATA_SOURCES.clear()
         JAViewer.DATA_SOURCES.addAll(properties.getDataSources())
 
@@ -126,41 +127,43 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Dexter.withContext(this)
-                .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(object : PermissionListener {
-                    override fun onPermissionGranted(response: PermissionGrantedResponse) {
-                        checkPermissions()
-                    }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Dexter.withContext(this)
+                    .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .withListener(object : PermissionListener {
+                        override fun onPermissionGranted(response: PermissionGrantedResponse) {
+                            checkPermissions()
+                        }
 
-                    override fun onPermissionDenied(response: PermissionDeniedResponse) {
-                        AlertDialog.Builder(this@StartActivity)
-                            .setTitle("权限申请")
-                            .setCancelable(false)
-                            .setMessage("JAViewer 需要储存空间权限，储存用户配置。请您允许。")
-                            .setPositiveButton(android.R.string.ok) { _, _ -> checkPermissions() }
-                            .show()
-                    }
+                        override fun onPermissionDenied(response: PermissionDeniedResponse) {
+                            AlertDialog.Builder(this@StartActivity)
+                                .setTitle("权限申请")
+                                .setCancelable(false)
+                                .setMessage("JAViewer 需要储存空间权限，储存用户配置。请您允许。")
+                                .setPositiveButton(android.R.string.ok) { _, _ -> checkPermissions() }
+                                .show()
+                        }
 
-                    override fun onPermissionRationaleShouldBeShown(permission: PermissionRequest, token: PermissionToken) {
-                        token.continuePermissionRequest()
-                    }
-                })
-                .onSameThread()
-                .check()
-            return
+                        override fun onPermissionRationaleShouldBeShown(permission: PermissionRequest, token: PermissionToken) {
+                            token.continuePermissionRequest()
+                        }
+                    })
+                    .onSameThread()
+                    .check()
+                return
+            }
         }
 
         val oldConfig = File(getExternalFilesDir(null), "configurations.json")
-        val config = File(JAViewer.getStorageDir(), "configurations.json")
+        val config = File(JAViewer.getStorageDir(this), "configurations.json")
         if (oldConfig.exists()) {
             oldConfig.renameTo(config)
         }
 
-        val noMedia = File(JAViewer.getStorageDir(), ".nomedia")
+        val noMedia = File(JAViewer.getStorageDir(this), ".nomedia")
         try {
             noMedia.createNewFile()
         } catch (_: IOException) {

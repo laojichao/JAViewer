@@ -35,11 +35,12 @@ class ActressPaletteAdapter(
         holder.binding.cardActressPalette.setOnClickListener(ActressClickListener(actress, activity))
         holder.binding.cardActressPalette.setOnLongClickListener(ActressLongClickListener(actress, activity))
         holder.binding.actressPaletteName.text = actress.name
+        holder.binding.cardActressPalette.setCardBackgroundColor(0)
         if (position == 0) ViewUtil.alignIconToView(icon, holder.binding.actressPaletteImg)
         holder.binding.actressPaletteImg.setImageResource(R.drawable.ic_movie_actresses)
         if (actress.imageUrl.trim().isEmpty()) return
 
-        Glide.with(holder.binding.actressPaletteImg.context.applicationContext)
+        Glide.with(holder.itemView)
             .asBitmap()
             .load(actress.imageUrl)
             .placeholder(R.drawable.ic_movie_actresses)
@@ -48,9 +49,11 @@ class ActressPaletteAdapter(
             .transform(SquareTopCrop())
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    if (holder.bindingAdapterPosition != position) return
                     holder.binding.actressPaletteImg.setImageBitmap(resource)
                     try {
                         Palette.from(resource).generate { palette ->
+                            if (holder.bindingAdapterPosition != position) return@generate
                             val swatch = palette?.lightVibrantSwatch ?: return@generate
                             holder.binding.cardActressPalette.setCardBackgroundColor(swatch.rgb)
                             holder.binding.actressPaletteName.setTextColor(swatch.bodyTextColor)

@@ -12,6 +12,7 @@ import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.Timeline
+import com.google.android.exoplayer2.video.VideoSize
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -19,7 +20,6 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import cn.jzvd.JZMediaInterface
@@ -45,7 +45,6 @@ class ExoPlayerImpl : JZMediaInterface(), Player.Listener {
         mainHandler = Handler()
         val context = JZVideoPlayerManager.getCurrentJzvd().context
 
-        val bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
         val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory()
         val trackSelector = DefaultTrackSelector(context, videoTrackSelectionFactory)
         val loadControl = DefaultLoadControl.Builder()
@@ -96,13 +95,16 @@ class ExoPlayerImpl : JZMediaInterface(), Player.Listener {
         if (time != previousSeek) {
             simpleExoPlayer?.seekTo(time)
             previousSeek = time
-            JZVideoPlayerManager.getCurrentJzvd().seekToInAdvance = time
+            JZVideoPlayerManager.getCurrentJzvd()?.seekToInAdvance = time
         }
     }
 
     override fun release() {
         simpleExoPlayer?.release()
+        simpleExoPlayer = null
         callback?.let { mainHandler?.removeCallbacks(it) }
+        callback = null
+        mainHandler = null
     }
 
     override fun getCurrentPosition(): Long = simpleExoPlayer?.currentPosition ?: 0
@@ -148,6 +150,14 @@ class ExoPlayerImpl : JZMediaInterface(), Player.Listener {
     override fun onSeekProcessed() {
         JZMediaManager.instance().mainThreadHandler.post {
             JZVideoPlayerManager.getCurrentJzvd()?.onSeekComplete()
+        }
+    }
+
+    override fun onVideoSizeChanged(videoSize: VideoSize) {
+        JZMediaManager.instance().currentVideoWidth = videoSize.width
+        JZMediaManager.instance().currentVideoHeight = videoSize.height
+        JZMediaManager.instance().mainThreadHandler.post {
+            JZVideoPlayerManager.getCurrentJzvd()?.onVideoSizeChanged()
         }
     }
 

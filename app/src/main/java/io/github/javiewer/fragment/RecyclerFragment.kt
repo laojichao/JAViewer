@@ -46,7 +46,6 @@ abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment()
 
     fun setItems(newItems: ArrayList<I>) {
         items.clear()
-        getAdapter()?.notifyDataSetChanged()
         items.addAll(newItems)
         getAdapter()?.notifyDataSetChanged()
     }
@@ -97,6 +96,7 @@ abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment()
     }
 
     override fun onDestroyView() {
+        mScrollListener?.onViewDestroyed()
         super.onDestroyView()
         _binding = null
     }

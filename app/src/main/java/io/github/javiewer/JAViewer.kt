@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.util.Log
 import com.google.gson.Gson
@@ -48,7 +49,7 @@ class JAViewer : Application() {
         var SERVICE: BasicService? = null
 
         @JvmField
-        val hostReplacements: MutableMap<String, String> = mutableMapOf()
+        val hostReplacements: MutableMap<String, String> = java.util.concurrent.ConcurrentHashMap()
 
         private val GSON: Gson = GsonBuilder().create()
 
@@ -90,8 +91,12 @@ class JAViewer : Application() {
         }
 
         @JvmStatic
-        fun getStorageDir(): File {
-            val dir = File(Environment.getExternalStorageDirectory(), "JAViewer/")
+        fun getStorageDir(context: Context): File {
+            val dir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                File(context.getExternalFilesDir(null), "JAViewer/")
+            } else {
+                File(Environment.getExternalStorageDirectory(), "JAViewer/")
+            }
             dir.mkdirs()
             return dir
         }
@@ -129,7 +134,7 @@ class JAViewer : Application() {
         fun a(context: Context) {
             val url = "https://qr.alipay.com/a6x05027ymf6n8kl0qkoa54"
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             context.startActivity(intent)
         }
 

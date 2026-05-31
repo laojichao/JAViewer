@@ -1,14 +1,14 @@
 package io.github.javiewer.fragment.favourite
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import io.github.javiewer.adapter.ItemAdapter
-import io.github.javiewer.adapter.item.Movie
 import io.github.javiewer.fragment.RecyclerFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 
-abstract class FavouriteFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
+abstract class FavouriteFragment<T : Parcelable> : RecyclerFragment<T, LinearLayoutManager>() {
 
     fun update() {
         getAdapter()?.notifyDataSetChanged()

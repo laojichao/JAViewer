@@ -85,13 +85,19 @@ class WebViewActivity : SecureActivity() {
                     httpClient.newCall(request).enqueue(object : Callback {
                         override fun onFailure(call: Call, e: IOException) {}
                         override fun onResponse(call: Call, response: Response) {
-                            if (isFinishing) return
+                            if (isFinishing) {
+                                response.close()
+                                return
+                            }
                             try {
                                 val json = response.body()?.string() ?: return
                                 val obj = Gson().fromJson(json, JsonObject::class.java)
                                 val playBack = obj.get("url").asString
                                 testVideoPlayBack(playBack)
-                            } catch (_: Exception) {}
+                            } catch (_: Exception) {
+                            } finally {
+                                response.close()
+                            }
                         }
                     })
                 }
@@ -99,7 +105,7 @@ class WebViewActivity : SecureActivity() {
             }
         }
 
-        binding.buttonUnlock.setOnClickListener { onUnlock(it as Button) }
+        binding.buttonUnlock.setOnClickListener { onUnlock(binding.buttonUnlock) }
 
         val safeUrl = TextUtils.htmlEncode(embeddedUrl)
         binding.webView.loadDataWithBaseURL(
@@ -114,14 +120,23 @@ class WebViewActivity : SecureActivity() {
         httpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {}
             override fun onResponse(call: Call, response: Response) {
-                if (isFinishing) return
-                if (response.code() == 200) {
-                    val intent = Intent().apply {
-                        putExtra("m3u8", response.request().url().toString())
-                    }
-                    setResult(RESULT_OK, intent)
-                    finish()
+                if (isFinishing) {
+                    response.close()
+                    return
                 }
+                if (response.isSuccessful) {
+                    val m3u8Url = response.request().url().toString()
+                    runOnUiThread {
+                        if (!isFinishing && !isDestroyed) {
+                            val intent = Intent().apply {
+                                putExtra("m3u8", m3u8Url)
+                            }
+                            setResult(RESULT_OK, intent)
+                            finish()
+                        }
+                    }
+                }
+                response.close()
             }
         })
     }

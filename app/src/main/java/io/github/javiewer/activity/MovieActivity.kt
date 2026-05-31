@@ -47,6 +47,7 @@ class MovieActivity : SecureActivity() {
     lateinit var movie: Movie
     private var video: AvgleSearchResult.Response.Video? = null
     private var mStarButton: MenuItem? = null
+    private var progressDialog: ProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +77,6 @@ class MovieActivity : SecureActivity() {
 
         // Observe ViewModel
         viewModel.detail.observe(this) { detail ->
-            detail.headers.add(0, MovieDetail.Header.create("影片名", movie.title, null))
             displayInfo(detail)
             Glide.with(applicationContext).load(detail.coverUrl).into(binding.toolbarLayoutBackground)
         }
@@ -96,7 +96,7 @@ class MovieActivity : SecureActivity() {
 
         // Load detail
         val movieLink = movie.link ?: return
-        viewModel.loadDetail(movieLink)
+        viewModel.loadDetail(movieLink, movie.title)
     }
 
     private fun displayInfo(detail: MovieDetail) {
@@ -166,7 +166,7 @@ class MovieActivity : SecureActivity() {
         }).start()
 
         contentBinding.root.visibility = View.VISIBLE
-        contentBinding.root.y = contentBinding.root.y + 120
+        contentBinding.root.y = contentBinding.root.y + (40 * resources.displayMetrics.density)
         contentBinding.root.alpha = 0f
         contentBinding.root.animate().translationY(0f).alpha(1f).setDuration(500).start()
     }
@@ -194,12 +194,13 @@ class MovieActivity : SecureActivity() {
 
         menu.findItem(R.id.action_share)?.setOnMenuItemClickListener {
             try {
-                val cache = File(getExternalFilesDir("cache"), "screenshot")
-                val os = FileOutputStream(cache)
+                val cacheDir = getExternalFilesDir("cache") ?: cacheDir
+                val cache = File(cacheDir, "screenshot")
                 val screenshot = getScreenBitmap()
-                screenshot.compress(Bitmap.CompressFormat.JPEG, 100, os)
-                os.flush()
-                os.close()
+                FileOutputStream(cache).use { os ->
+                    screenshot.compress(Bitmap.CompressFormat.JPEG, 100, os)
+                }
+                screenshot.recycle()
                 val uri = FileProvider.getUriForFile(applicationContext, "io.github.javiewer.fileprovider", cache)
                 val intent = Intent(Intent.ACTION_SEND)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -232,10 +233,12 @@ class MovieActivity : SecureActivity() {
         val bitmap1 = Bitmap.createBitmap(binding.toolbarLayoutBackground.width, imageHeight, Bitmap.Config.ARGB_8888)
         binding.toolbarLayoutBackground.draw(Canvas(bitmap1))
         canvas.drawBitmap(bitmap1, 0f, 0f, null)
+        bitmap1.recycle()
 
         val bitmap2 = Bitmap.createBitmap(contentView.width, scrollViewHeight, Bitmap.Config.ARGB_8888)
         contentView.draw(Canvas(bitmap2))
         canvas.drawBitmap(bitmap2, 0f, imageHeight.toFloat(), null)
+        bitmap2.recycle()
 
         return result
     }
@@ -246,27 +249,35 @@ class MovieActivity : SecureActivity() {
             cn.jzvd.JZVideoPlayerStandard.startFullscreen(this, SimpleVideoPlayer::class.java, video!!.preview_video_url, movie.title)
             return
         }
-        val dialog = ProgressDialog.show(this, "请稍后", "正在搜索该影片的预览视频", true, false)
+        if (isFinishing || isDestroyed) return
+        if (progressDialog?.isShowing == true) return
+        progressDialog = ProgressDialog.show(this, "请稍后", "正在搜索该影片的预览视频", true, false)
         PSVS.INSTANCE.search(movie.code).enqueue(object : Callback<AvgleSearchResult> {
             override fun onResponse(call: Call<AvgleSearchResult>, response: Response<AvgleSearchResult>) {
                 if (response.isSuccessful) {
                     val result = response.body()
                     if (result != null && result.success && result.response.videos.isNotEmpty()) {
                         video = result.response.videos[0]
-                        cn.jzvd.JZVideoPlayerStandard.startFullscreen(this@MovieActivity, SimpleVideoPlayer::class.java, video!!.preview_video_url, movie.title)
-                        Toast.makeText(this@MovieActivity, "提示：预览视频可能需要科学上网", Toast.LENGTH_LONG).show()
-                        dialog.dismiss()
+                        if (!isFinishing && !isDestroyed) {
+                            cn.jzvd.JZVideoPlayerStandard.startFullscreen(this@MovieActivity, SimpleVideoPlayer::class.java, video!!.preview_video_url, movie.title)
+                            Toast.makeText(this@MovieActivity, "提示：预览视频可能需要科学上网", Toast.LENGTH_LONG).show()
+                        }
+                        dismissProgress()
                         return
                     }
                 }
-                Toast.makeText(this@MovieActivity, "该影片暂无预览", Toast.LENGTH_LONG).show()
-                dialog.dismiss()
+                if (!isFinishing && !isDestroyed) {
+                    Toast.makeText(this@MovieActivity, "该影片暂无预览", Toast.LENGTH_LONG).show()
+                }
+                dismissProgress()
             }
 
             override fun onFailure(call: Call<AvgleSearchResult>, t: Throwable) {
                 t.printStackTrace()
-                Toast.makeText(this@MovieActivity, "获取预览失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
-                dialog.dismiss()
+                if (!isFinishing && !isDestroyed) {
+                    Toast.makeText(this@MovieActivity, "获取预览失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
+                }
+                dismissProgress()
             }
         })
     }
@@ -282,32 +293,47 @@ class MovieActivity : SecureActivity() {
             )
             return
         }
-        val dialog = ProgressDialog.show(this, "请稍后", "正在搜索该影片的在线视频源", true, false)
+        if (isFinishing || isDestroyed) return
+        if (progressDialog?.isShowing == true) return
+        progressDialog = ProgressDialog.show(this, "请稍后", "正在搜索该影片的在线视频源", true, false)
         PSVS.INSTANCE.search(movie.code).enqueue(object : Callback<AvgleSearchResult> {
             override fun onResponse(call: Call<AvgleSearchResult>, response: Response<AvgleSearchResult>) {
                 if (response.isSuccessful) {
                     val result = response.body()
                     if (result != null && result.success && result.response.videos.isNotEmpty()) {
                         video = result.response.videos[0]
-                        cn.jzvd.JZVideoPlayerStandard.startFullscreen(
-                            this@MovieActivity, SimpleVideoPlayer::class.java,
-                            "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}",
-                            movie.title
-                        )
-                        dialog.dismiss()
+                        if (!isFinishing && !isDestroyed) {
+                            cn.jzvd.JZVideoPlayerStandard.startFullscreen(
+                                this@MovieActivity, SimpleVideoPlayer::class.java,
+                                "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}",
+                                movie.title
+                            )
+                        }
+                        dismissProgress()
                         return
                     }
                 }
-                Toast.makeText(this@MovieActivity, "该影片暂无在线视频源", Toast.LENGTH_LONG).show()
-                dialog.dismiss()
+                if (!isFinishing && !isDestroyed) {
+                    Toast.makeText(this@MovieActivity, "该影片暂无在线视频源", Toast.LENGTH_LONG).show()
+                }
+                dismissProgress()
             }
 
             override fun onFailure(call: Call<AvgleSearchResult>, t: Throwable) {
                 t.printStackTrace()
-                Toast.makeText(this@MovieActivity, "获取在线视频源失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
-                dialog.dismiss()
+                if (!isFinishing && !isDestroyed) {
+                    Toast.makeText(this@MovieActivity, "获取在线视频源失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
+                }
+                dismissProgress()
             }
         })
+    }
+
+    private fun dismissProgress() {
+        progressDialog?.let {
+            if (!isFinishing && !isDestroyed && it.isShowing) it.dismiss()
+        }
+        progressDialog = null
     }
 
     @Deprecated("Deprecated in Java")
@@ -317,6 +343,7 @@ class MovieActivity : SecureActivity() {
     }
 
     override fun onDestroy() {
+        dismissProgress()
         super.onDestroy()
         cn.jzvd.JZVideoPlayer.releaseAllVideos()
     }

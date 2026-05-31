@@ -27,7 +27,7 @@ class FavouriteActivity : SecureActivity() {
             val activity = sInstance?.get()
             if (activity != null && activity.mAdapter != null) {
                 for (i in 0 until activity.mAdapter!!.count) {
-                    (activity.mAdapter!!.getItem(i) as? FavouriteFragment)?.update()
+                    (activity.mAdapter!!.getItem(i) as? FavouriteFragment<*>)?.update()
                 }
             }
         }

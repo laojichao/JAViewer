@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.javiewer.adapter.item.Movie
 import io.github.javiewer.adapter.item.MovieDetail
+import io.github.javiewer.adapter.item.MovieDetail.Header
 import io.github.javiewer.repository.ConfigRepository
 import io.github.javiewer.repository.MovieRepository
 import okhttp3.ResponseBody
@@ -29,13 +30,21 @@ class MovieDetailViewModel @Inject constructor(
     private val _starred = MutableLiveData<Boolean>()
     val starred: LiveData<Boolean> = _starred
 
-    fun loadDetail(link: String) {
+    fun loadDetail(link: String, movieTitle: String) {
         movieRepository.get(link).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (!response.isSuccessful) return
+                if (!response.isSuccessful) {
+                    response.body()?.close()
+                    return
+                }
                 try {
-                    val body = response.body()?.string() ?: return
+                    val body = response.body()?.string()
+                    if (body == null) {
+                        response.body()?.close()
+                        return
+                    }
                     val detail = movieRepository.parseMovieDetail(body)
+                    detail.headers.add(0, Header.create("影片名", movieTitle, null))
                     _detail.postValue(detail)
                 } catch (e: Exception) {
                     _error.postValue(e.message ?: "Unknown error")

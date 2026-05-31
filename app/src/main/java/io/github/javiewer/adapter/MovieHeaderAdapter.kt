@@ -36,7 +36,7 @@ class MovieHeaderAdapter(
             holder.itemView.setOnLongClickListener {
                 val clip = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
                 clip?.setPrimaryClip(ClipData.newPlainText(header.name, header.value))
-                Toast.makeText(activity, "已复制到剪贴板", Toast.LENGTH_SHORT).show()
+                activity?.let { Toast.makeText(it, "已复制到剪贴板", Toast.LENGTH_SHORT).show() }
                 true
             }
             holder.binding.headerName.text = header.name
@@ -48,6 +48,10 @@ class MovieHeaderAdapter(
                 holder.binding.headerValue.setOnClickListener {
                     activity.startActivity(MovieListActivity.newIntent(activity, "${header.name} ${header.value}", header.link!!))
                 }
+            } else {
+                holder.binding.headerValue.paintFlags = holder.binding.headerValue.paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv()
+                holder.binding.headerValue.setTextColor(ResourcesCompat.getColor(holder.itemView.context.resources, android.R.color.tab_indicator_text, null))
+                holder.binding.headerValue.setOnClickListener(null)
             }
             if (first) {
                 ViewUtil.alignIconToView(icon, holder.binding.headerName)

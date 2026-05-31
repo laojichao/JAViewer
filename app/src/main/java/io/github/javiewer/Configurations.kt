@@ -23,18 +23,24 @@ class Configurations {
     private var download_counter: Long = 0
 
     fun getStarredMovies(): ArrayList<Movie> {
-        if (starred_movies == null) starred_movies = arrayListOf()
-        return starred_movies!!
+        return synchronized(this) {
+            if (starred_movies == null) starred_movies = arrayListOf()
+            starred_movies!!
+        }
     }
 
     fun getStarredActresses(): ArrayList<Actress> {
-        if (starred_actresses == null) starred_actresses = arrayListOf()
-        return starred_actresses!!
+        return synchronized(this) {
+            if (starred_actresses == null) starred_actresses = arrayListOf()
+            starred_actresses!!
+        }
     }
 
     fun getDataSource(): DataSource {
-        if (data_source == null) data_source = JAViewer.DATA_SOURCES.firstOrNull() ?: DataSource.AVMO
-        return data_source!!
+        return synchronized(this) {
+            if (data_source == null) data_source = JAViewer.DATA_SOURCES.firstOrNull() ?: DataSource.AVMO
+            data_source!!
+        }
     }
 
     fun setDataSource(source: DataSource) {
@@ -69,7 +75,11 @@ class Configurations {
         @JvmStatic
         fun load(file: File): Configurations {
             val config: Configurations? = try {
-                JAViewer.parseJson(Configurations::class.java, com.google.gson.stream.JsonReader(FileReader(file)))
+                FileReader(file).use { reader ->
+                    com.google.gson.stream.JsonReader(reader).use { jsonReader ->
+                        JAViewer.parseJson(Configurations::class.java, jsonReader)
+                    }
+                }
             } catch (_: Exception) {
                 null
             }

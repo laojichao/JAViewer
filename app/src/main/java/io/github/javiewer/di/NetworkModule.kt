@@ -20,9 +20,11 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideBasicService(): BasicService {
-        if (JAViewer.SERVICE == null) {
-            JAViewer.recreateService()
+        return JAViewer.SERVICE ?: synchronized(NetworkModule::class.java) {
+            if (JAViewer.SERVICE == null) {
+                JAViewer.recreateService()
+            }
+            JAViewer.SERVICE ?: throw IllegalStateException("BasicService not initialized. Check data source configuration.")
         }
-        return JAViewer.SERVICE ?: throw IllegalStateException("BasicService not initialized. Check data source configuration.")
     }
 }

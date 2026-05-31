@@ -18,11 +18,17 @@ abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
     private var currentPage = 0
     private var token = 0L
     private var end = false
+    private var cancelled = false
+
+    fun onViewDestroyed() {
+        cancelled = true
+    }
 
     fun reset() {
         loading = false
         loadThreshold = 5
         currentPage = 0
+        end = false
         val oldSize = getItems().size
         if (oldSize > 0) {
             getItems().clear()
@@ -48,34 +54,47 @@ abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
         onLoad(System.currentTimeMillis().also { token = it })
     }
 
-    private fun onLoad(t: Long) {
+    private fun onLoad(requestToken: Long) {
         val page = currentPage
         val call = newCall(page + 1) ?: run {
-            setLoading(false)
-            getRefreshLayout().isRefreshing = false
+            if (!cancelled) {
+                setLoading(false)
+                getRefreshLayout().isRefreshing = false
+            }
             return
         }
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (t == token && page == currentPage) {
+                if (cancelled) {
+                    response.body()?.close()
+                    return
+                }
+                if (requestToken == token && page == currentPage) {
                     try {
                         val body = response.body()
                         if (body != null) {
-                            onResult(body)
+                            body.use {
+                                onResult(it)
+                            }
                             currentPage++
                         }
                     } catch (e: Throwable) {
                         onFailure(call, e)
                     }
+                    setLoading(false)
+                    getRefreshLayout().isRefreshing = false
+                } else {
+                    response.body()?.close()
                 }
-                setLoading(false)
-                getRefreshLayout().isRefreshing = false
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                setLoading(false)
-                getRefreshLayout().isRefreshing = false
-                onExceptionCaught(t)
+                if (cancelled) return
+                if (requestToken == token && page == currentPage) {
+                    setLoading(false)
+                    getRefreshLayout().isRefreshing = false
+                    onExceptionCaught(t)
+                }
             }
         })
     }
@@ -85,7 +104,7 @@ abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
-        if (!isLoading && canLoadMore(recyclerView)) {
+        if (!isLoading && !isEnd() && canLoadMore(recyclerView)) {
             loading = true
             onLoad(System.currentTimeMillis().also { token = it })
         }

@@ -21,6 +21,7 @@ class GenreTabsFragment : ExtendedAppBarFragment() {
     private var _binding: FragmentGenreBinding? = null
     private val binding get() = _binding!!
     private var mAdapter: ViewPagerAdapter? = null
+    private var genreCall: Call<ResponseBody>? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentGenreBinding.inflate(inflater, container, false)
@@ -33,8 +34,13 @@ class GenreTabsFragment : ExtendedAppBarFragment() {
         binding.genreViewPager.adapter = mAdapter
         binding.genreTabs.setupWithViewPager(binding.genreViewPager)
 
-        JAViewer.SERVICE?.getGenre()?.enqueue(object : Callback<ResponseBody> {
+        genreCall = JAViewer.SERVICE?.getGenre()
+        genreCall?.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (_binding == null) {
+                    response.body()?.close()
+                    return
+                }
                 binding.genreProgressBar.visibility = View.GONE
                 try {
                     val html = response.body()?.string() ?: return
@@ -46,7 +52,7 @@ class GenreTabsFragment : ExtendedAppBarFragment() {
                         mAdapter?.addFragment(fragment, title)
                     }
                     mAdapter?.notifyDataSetChanged()
-                    binding.genreTabs.visibility = View.VISIBLE
+                    if (_binding != null) binding.genreTabs.visibility = View.VISIBLE
                 } catch (e: Throwable) {
                     onFailure(call, e)
                 }
@@ -59,6 +65,9 @@ class GenreTabsFragment : ExtendedAppBarFragment() {
     }
 
     override fun onDestroyView() {
+        genreCall?.cancel()
+        genreCall = null
+        mAdapter = null
         super.onDestroyView()
         _binding = null
     }
