@@ -11,15 +11,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import io.github.javiewer.adapter.item.DownloadLink
-import io.github.javiewer.adapter.item.MagnetLink
 import io.github.javiewer.databinding.LayoutDownloadBinding
 import io.github.javiewer.network.provider.DownloadLinkProvider
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 
 class DownloadLinkAdapter(
     items: MutableList<DownloadLink>,
@@ -47,22 +45,17 @@ class DownloadLinkAdapter(
                     show()
                 }
                 val linkUrl = link.link ?: return@setOnClickListener
-                provider.get(linkUrl)?.enqueue(object : Callback<ResponseBody> {
-                    override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                        try {
-                            val magnetLink = provider.parseMagnetLink(response.body()?.string() ?: "")
-                            onMagnetGet(magnetLink?.magnetLink)
-                        } catch (e: Throwable) {
-                            onFailure(call, e)
-                        }
-                        if (activity != null && !activity.isFinishing) dialog.dismiss()
+                val scope = (act as? AppCompatActivity)?.lifecycleScope ?: return@setOnClickListener
+                scope.launch {
+                    try {
+                        val body = provider.get(linkUrl)
+                        val magnetLink = provider.parseMagnetLink(body?.string() ?: "")
+                        onMagnetGet(magnetLink?.magnetLink)
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
                     }
-
-                    override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                        t.printStackTrace()
-                        if (activity != null && !activity.isFinishing) dialog.dismiss()
-                    }
-                })
+                    if (!act.isFinishing) dialog.dismiss()
+                }
             } else {
                 onMagnetGet(link.getMagnetLinkStr())
             }

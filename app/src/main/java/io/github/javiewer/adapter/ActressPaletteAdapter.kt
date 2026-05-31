@@ -14,6 +14,7 @@ import com.bumptech.glide.request.transition.Transition
 import io.github.javiewer.R
 import io.github.javiewer.adapter.item.Actress
 import io.github.javiewer.databinding.CardActressPaletteBinding
+import io.github.javiewer.repository.ConfigRepository
 import io.github.javiewer.view.SquareTopCrop
 import io.github.javiewer.view.ViewUtil
 import io.github.javiewer.view.listener.ActressClickListener
@@ -22,7 +23,8 @@ import io.github.javiewer.view.listener.ActressLongClickListener
 class ActressPaletteAdapter(
     private val actresses: List<Actress>,
     private val activity: Activity?,
-    private val icon: ImageView
+    private val icon: ImageView,
+    private val configRepository: ConfigRepository
 ) : RecyclerView.Adapter<ActressPaletteAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,7 +35,7 @@ class ActressPaletteAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val actress = actresses[position]
         holder.binding.cardActressPalette.setOnClickListener(ActressClickListener(actress, activity))
-        holder.binding.cardActressPalette.setOnLongClickListener(ActressLongClickListener(actress, activity))
+        holder.binding.cardActressPalette.setOnLongClickListener(ActressLongClickListener(actress, activity, configRepository))
         holder.binding.actressPaletteName.text = actress.name
         holder.binding.cardActressPalette.setCardBackgroundColor(0)
         if (position == 0) ViewUtil.alignIconToView(icon, holder.binding.actressPaletteImg)

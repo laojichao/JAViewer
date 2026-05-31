@@ -5,11 +5,10 @@ import io.github.javiewer.adapter.item.MagnetLink
 import io.github.javiewer.network.BH
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
-import retrofit2.Call
 
 class BHLinkProvider : DownloadLinkProvider() {
 
-    override fun search(keyword: String, page: Int): Call<ResponseBody>? {
+    override suspend fun search(keyword: String, page: Int): ResponseBody? {
         return if (page == 1) BH.INSTANCE.searchByQuery(keyword) else null
     }
 
@@ -35,7 +34,7 @@ class BHLinkProvider : DownloadLinkProvider() {
         return links
     }
 
-    override fun get(url: String): Call<ResponseBody>? = null
+    override suspend fun get(url: String): ResponseBody? = null
 
     override fun parseMagnetLink(htmlContent: String): MagnetLink? = null
 

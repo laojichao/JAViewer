@@ -2,16 +2,14 @@ package io.github.javiewer.fragment
 
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter
-import jp.wasabeef.recyclerview.animators.SlideInUpAnimator
 import io.github.javiewer.adapter.DownloadLinkAdapter
 import io.github.javiewer.adapter.item.DownloadLink
 import io.github.javiewer.network.provider.DownloadLinkProvider
 import io.github.javiewer.view.decoration.DownloadItemDecoration
 import io.github.javiewer.view.listener.BasicOnScrollListener
 import okhttp3.ResponseBody
-import retrofit2.Call
 
 class DownloadFragment : RecyclerFragment<DownloadLink, LinearLayoutManager>() {
 
@@ -29,17 +27,13 @@ class DownloadFragment : RecyclerFragment<DownloadLink, LinearLayoutManager>() {
         super.onViewCreated(view, savedInstanceState)
         setLayoutManager(LinearLayoutManager(context))
         val p = provider ?: return
-        setAdapter(ScaleInAnimationAdapter(DownloadLinkAdapter(getItems(), activity, p)))
+        setAdapter(DownloadLinkAdapter(getItems(), activity, p))
         mRecyclerView.addItemDecoration(DownloadItemDecoration())
-
-        val animator = SlideInUpAnimator()
-        animator.addDuration = 300
-        mRecyclerView.itemAnimator = animator
 
         setOnRefreshListener { getOnScrollListener()?.refresh() }
 
-        addOnScrollListener(object : BasicOnScrollListener<DownloadLink>() {
-            override fun newCall(page: Int): Call<ResponseBody>? = provider?.search(keyword, page)
+        addOnScrollListener(object : BasicOnScrollListener<DownloadLink>(viewLifecycleOwner.lifecycleScope) {
+            override suspend fun loadData(page: Int): ResponseBody? = provider?.search(keyword, page)
             override fun getLayoutManager() = this@DownloadFragment.getLayoutManager()
             override fun getRefreshLayout() = this@DownloadFragment.mRefreshLayout
             override fun getItems() = this@DownloadFragment.getItems()

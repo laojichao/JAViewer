@@ -1,101 +1,74 @@
 package io.github.javiewer.activity
 
-import android.Manifest
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionDeniedResponse
-import com.karumi.dexter.listener.PermissionGrantedResponse
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.single.PermissionListener
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.javiewer.Configurations
 import io.github.javiewer.JAViewer
-import io.github.javiewer.Properties
 import io.github.javiewer.R
-import io.github.javiewer.adapter.item.DataSource
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Request
-import okhttp3.Response
+import io.github.javiewer.data.migration.JsonToRoomMigrator
+import io.github.javiewer.repository.DataSourceRepository
+import io.github.javiewer.repository.PropertiesRepository
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
-import java.net.URI
-import java.net.URISyntaxException
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class StartActivity : AppCompatActivity() {
 
+    @Inject lateinit var propertiesRepository: PropertiesRepository
+    @Inject lateinit var dataSourceRepository: DataSourceRepository
+    @Inject lateinit var migrator: JsonToRoomMigrator
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
-        checkPermissions()
+        init()
     }
 
-    private fun readProperties() {
-        val url = "https://raw.githubusercontent.com/ipcjs/JAViewer/master/app/src/main/assets/properties.json"
-        val request = Request.Builder()
-            .url("$url?t=${System.currentTimeMillis() / 1000}")
-            .build()
-        JAViewer.httpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                readLocalProperties()
-            }
+    private fun init() {
+        val config = File(JAViewer.getStorageDir(this), "configurations.json")
 
-            override fun onResponse(call: Call, response: Response) {
-                try {
-                    val body = response.body() ?: run { readLocalProperties(); return }
-                    val properties = JAViewer.parseJson(Properties::class.java, body.string())
-                    if (properties != null && !isFinishing) {
-                        Handler(Looper.getMainLooper()).post { handleProperties(properties) }
-                    }
-                } catch (_: IOException) {
-                    readLocalProperties()
-                } finally {
-                    response.close()
-                }
-            }
-        })
-    }
-
-    private fun readLocalProperties() {
+        val noMedia = File(JAViewer.getStorageDir(this), ".nomedia")
         try {
-            val json = assets.open("properties.json").bufferedReader().use { it.readText() }
-            val properties = JAViewer.parseJson(Properties::class.java, json)
+            noMedia.createNewFile()
+        } catch (_: IOException) {
+        }
+
+        JAViewer.CONFIGURATIONS = io.github.javiewer.Configurations.load(config)
+        lifecycleScope.launch {
+            migrator.migrateIfNeeded()
+        }
+        loadProperties()
+    }
+
+    private fun loadProperties() {
+        lifecycleScope.launch {
+            val properties = propertiesRepository.fetchProperties()
             if (properties != null && !isFinishing) {
-                Handler(Looper.getMainLooper()).post { handleProperties(properties) }
+                handleProperties(properties)
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
     }
 
-    private fun handleProperties(properties: Properties) {
+    private fun handleProperties(properties: io.github.javiewer.Properties) {
         if (isFinishing || isDestroyed) return
+
+        val sources = properties.getDataSources()
+        dataSourceRepository.setDataSources(sources)
         JAViewer.DATA_SOURCES.clear()
-        JAViewer.DATA_SOURCES.addAll(properties.getDataSources())
+        JAViewer.DATA_SOURCES.addAll(sources)
 
         JAViewer.hostReplacements.clear()
-        for (source in JAViewer.DATA_SOURCES) {
-            try {
-                val host = URI(source.link).host
-                source.legacies?.forEach { legacy ->
-                    JAViewer.hostReplacements[legacy] = host
-                }
-            } catch (_: URISyntaxException) {
-            }
-        }
+        JAViewer.hostReplacements.putAll(dataSourceRepository.getHostReplacements())
 
         val currentVersion = try {
+            @Suppress("DEPRECATION")
             packageManager.getPackageInfo(packageName, 0).versionCode
         } catch (_: PackageManager.NameNotFoundException) {
             throw RuntimeException("Hacked???")
@@ -122,54 +95,8 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun start() {
+        JAViewer.recreateService()
         startActivity(Intent(this, MainActivity::class.java))
         finish()
-    }
-
-    private fun checkPermissions() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-            ) {
-                Dexter.withContext(this)
-                    .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    .withListener(object : PermissionListener {
-                        override fun onPermissionGranted(response: PermissionGrantedResponse) {
-                            checkPermissions()
-                        }
-
-                        override fun onPermissionDenied(response: PermissionDeniedResponse) {
-                            AlertDialog.Builder(this@StartActivity)
-                                .setTitle("权限申请")
-                                .setCancelable(false)
-                                .setMessage("JAViewer 需要储存空间权限，储存用户配置。请您允许。")
-                                .setPositiveButton(android.R.string.ok) { _, _ -> checkPermissions() }
-                                .show()
-                        }
-
-                        override fun onPermissionRationaleShouldBeShown(permission: PermissionRequest, token: PermissionToken) {
-                            token.continuePermissionRequest()
-                        }
-                    })
-                    .onSameThread()
-                    .check()
-                return
-            }
-        }
-
-        val oldConfig = File(getExternalFilesDir(null), "configurations.json")
-        val config = File(JAViewer.getStorageDir(this), "configurations.json")
-        if (oldConfig.exists()) {
-            oldConfig.renameTo(config)
-        }
-
-        val noMedia = File(JAViewer.getStorageDir(this), ".nomedia")
-        try {
-            noMedia.createNewFile()
-        } catch (_: IOException) {
-        }
-
-        JAViewer.CONFIGURATIONS = Configurations.load(config)
-        readProperties()
     }
 }

@@ -3,15 +3,14 @@ package io.github.javiewer.network.provider
 import io.github.javiewer.adapter.item.DownloadLink
 import io.github.javiewer.adapter.item.MagnetLink
 import okhttp3.ResponseBody
-import retrofit2.Call
 
 abstract class DownloadLinkProvider {
 
-    abstract fun search(keyword: String, page: Int): Call<ResponseBody>?
+    abstract suspend fun search(keyword: String, page: Int): ResponseBody?
 
     abstract fun parseDownloadLinks(htmlContent: String): List<DownloadLink>
 
-    abstract fun get(url: String): Call<ResponseBody>?
+    abstract suspend fun get(url: String): ResponseBody?
 
     abstract fun parseMagnetLink(htmlContent: String): MagnetLink?
 

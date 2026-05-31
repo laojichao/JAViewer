@@ -1,11 +1,14 @@
 package io.github.javiewer.network.item
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class AvgleSearchResult(
     val success: Boolean = false,
     val response: Response = Response()
 ) {
+    @Serializable
     data class Response(
         val has_more: Boolean = false,
         val total_videos: Int = 0,
@@ -13,6 +16,7 @@ data class AvgleSearchResult(
         val limit: Int = 0,
         val videos: List<Video> = emptyList()
     ) {
+        @Serializable
         data class Video(
             val title: String = "",
             val keyword: String = "",
@@ -28,7 +32,7 @@ data class AvgleSearchResult(
             val embedded_url: String = "",
             val preview_url: String = "",
             val preview_video_url: String = "",
-            @SerializedName("public")
+            @SerialName("public")
             val isPublic: Boolean = false,
             val vid: String = "",
             val uid: String = ""

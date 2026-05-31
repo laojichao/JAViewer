@@ -5,11 +5,10 @@ import io.github.javiewer.adapter.item.MagnetLink
 import io.github.javiewer.network.BTSO
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
-import retrofit2.Call
 
 class BTSOLinkProvider : DownloadLinkProvider() {
 
-    override fun search(keyword: String, page: Int): Call<ResponseBody> {
+    override suspend fun search(keyword: String, page: Int): ResponseBody {
         return BTSO.INSTANCE.search(keyword, page)
     }
 
@@ -34,7 +33,7 @@ class BTSOLinkProvider : DownloadLinkProvider() {
         return links
     }
 
-    override fun get(url: String): Call<ResponseBody> {
+    override suspend fun get(url: String): ResponseBody {
         return BTSO.INSTANCE.get(url)
     }
 

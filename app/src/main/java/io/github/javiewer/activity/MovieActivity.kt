@@ -14,6 +14,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.FileProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
@@ -30,18 +33,19 @@ import io.github.javiewer.adapter.item.MovieDetail
 import io.github.javiewer.databinding.ActivityMovieBinding
 import io.github.javiewer.network.PSVS
 import io.github.javiewer.network.item.AvgleSearchResult
-import io.github.javiewer.util.SimpleVideoPlayer
+import io.github.javiewer.repository.ConfigRepository
+import io.github.javiewer.util.UiState
 import io.github.javiewer.view.ViewUtil
 import io.github.javiewer.viewmodel.MovieDetailViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MovieActivity : SecureActivity() {
 
+    @Inject lateinit var configRepository: ConfigRepository
     private lateinit var binding: ActivityMovieBinding
     private val viewModel: MovieDetailViewModel by viewModels()
     lateinit var movie: Movie
@@ -75,23 +79,38 @@ class MovieActivity : SecureActivity() {
         binding.movieContent.viewPreview.setOnClickListener { onClickPreview() }
         binding.movieContent.viewPlay.setOnClickListener { onPlay() }
 
-        // Observe ViewModel
-        viewModel.detail.observe(this) { detail ->
-            displayInfo(detail)
-            Glide.with(applicationContext).load(detail.coverUrl).into(binding.toolbarLayoutBackground)
-        }
-
-        viewModel.starred.observe(this) { isStarred ->
-            if (isStarred) {
-                mStarButton?.setIcon(R.drawable.ic_menu_star)
-                Snackbar.make(binding.movieContent.root, "已收藏", Snackbar.LENGTH_LONG).show()
-                mStarButton?.title = "取消收藏"
-            } else {
-                mStarButton?.setIcon(R.drawable.ic_menu_star_border)
-                Snackbar.make(binding.movieContent.root, "已取消收藏", Snackbar.LENGTH_LONG).show()
-                mStarButton?.title = "收藏"
+        // Observe ViewModel StateFlows
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.detail.collect { state ->
+                        when (state) {
+                            is UiState.Loading -> { /* already showing progress bar */ }
+                            is UiState.Success -> {
+                                displayInfo(state.data)
+                                Glide.with(applicationContext).load(state.data.coverUrl).into(binding.toolbarLayoutBackground)
+                            }
+                            is UiState.Error -> {
+                                Toast.makeText(this@MovieActivity, state.message, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+                launch {
+                    viewModel.starred.collect { isStarred ->
+                        if (isStarred) {
+                            mStarButton?.setIcon(R.drawable.ic_menu_star)
+                            Snackbar.make(binding.movieContent.root, "已收藏", Snackbar.LENGTH_LONG).show()
+                            mStarButton?.title = "取消收藏"
+                        } else {
+                            mStarButton?.setIcon(R.drawable.ic_menu_star_border)
+                            Snackbar.make(binding.movieContent.root, "已取消收藏", Snackbar.LENGTH_LONG).show()
+                            mStarButton?.title = "收藏"
+                        }
+                        FavouriteActivity.update()
+                    }
+                }
             }
-            FavouriteActivity.update()
         }
 
         // Load detail
@@ -134,7 +153,7 @@ class MovieActivity : SecureActivity() {
             actressesBinding.actressesEmptyText.visibility = View.VISIBLE
             ViewUtil.alignIconToView(actressesBinding.movieIconActresses, actressesBinding.actressesEmptyText)
         } else {
-            actressesBinding.actressesRecyclerView.adapter = ActressPaletteAdapter(detail.actresses, this, actressesBinding.movieIconActresses)
+            actressesBinding.actressesRecyclerView.adapter = ActressPaletteAdapter(detail.actresses, this, actressesBinding.movieIconActresses, configRepository)
             actressesBinding.actressesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
             actressesBinding.actressesRecyclerView.isNestedScrollingEnabled = false
         }
@@ -243,90 +262,70 @@ class MovieActivity : SecureActivity() {
         return result
     }
 
-    @Suppress("DEPRECATION")
     fun onClickPreview() {
         if (video != null) {
-            cn.jzvd.JZVideoPlayerStandard.startFullscreen(this, SimpleVideoPlayer::class.java, video!!.preview_video_url, movie.title)
+            VideoPlayerActivity.start(this, video!!.preview_video_url, movie.title)
             return
         }
         if (isFinishing || isDestroyed) return
         if (progressDialog?.isShowing == true) return
         progressDialog = ProgressDialog.show(this, "请稍后", "正在搜索该影片的预览视频", true, false)
-        PSVS.INSTANCE.search(movie.code).enqueue(object : Callback<AvgleSearchResult> {
-            override fun onResponse(call: Call<AvgleSearchResult>, response: Response<AvgleSearchResult>) {
-                if (response.isSuccessful) {
-                    val result = response.body()
-                    if (result != null && result.success && result.response.videos.isNotEmpty()) {
-                        video = result.response.videos[0]
-                        if (!isFinishing && !isDestroyed) {
-                            cn.jzvd.JZVideoPlayerStandard.startFullscreen(this@MovieActivity, SimpleVideoPlayer::class.java, video!!.preview_video_url, movie.title)
-                            Toast.makeText(this@MovieActivity, "提示：预览视频可能需要科学上网", Toast.LENGTH_LONG).show()
-                        }
-                        dismissProgress()
-                        return
+        lifecycleScope.launch {
+            try {
+                val result = PSVS.INSTANCE.search(movie.code)
+                if (result.success && result.response.videos.isNotEmpty()) {
+                    video = result.response.videos[0]
+                    if (!isFinishing && !isDestroyed) {
+                        VideoPlayerActivity.start(this@MovieActivity, video!!.preview_video_url, movie.title)
+                        Toast.makeText(this@MovieActivity, "提示：预览视频可能需要科学上网", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    if (!isFinishing && !isDestroyed) {
+                        Toast.makeText(this@MovieActivity, "该影片暂无预览", Toast.LENGTH_LONG).show()
                     }
                 }
-                if (!isFinishing && !isDestroyed) {
-                    Toast.makeText(this@MovieActivity, "该影片暂无预览", Toast.LENGTH_LONG).show()
-                }
-                dismissProgress()
-            }
-
-            override fun onFailure(call: Call<AvgleSearchResult>, t: Throwable) {
-                t.printStackTrace()
+            } catch (e: Exception) {
+                e.printStackTrace()
                 if (!isFinishing && !isDestroyed) {
                     Toast.makeText(this@MovieActivity, "获取预览失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
                 }
-                dismissProgress()
             }
-        })
+            dismissProgress()
+        }
     }
 
-    @Suppress("DEPRECATION")
     fun onPlay() {
         val ts = (System.currentTimeMillis() / 1000).toString()
         if (video != null) {
-            cn.jzvd.JZVideoPlayerStandard.startFullscreen(
-                this, SimpleVideoPlayer::class.java,
-                "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}",
-                movie.title
-            )
+            val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}"
+            VideoPlayerActivity.start(this, url, movie.title)
             return
         }
         if (isFinishing || isDestroyed) return
         if (progressDialog?.isShowing == true) return
         progressDialog = ProgressDialog.show(this, "请稍后", "正在搜索该影片的在线视频源", true, false)
-        PSVS.INSTANCE.search(movie.code).enqueue(object : Callback<AvgleSearchResult> {
-            override fun onResponse(call: Call<AvgleSearchResult>, response: Response<AvgleSearchResult>) {
-                if (response.isSuccessful) {
-                    val result = response.body()
-                    if (result != null && result.success && result.response.videos.isNotEmpty()) {
-                        video = result.response.videos[0]
-                        if (!isFinishing && !isDestroyed) {
-                            cn.jzvd.JZVideoPlayerStandard.startFullscreen(
-                                this@MovieActivity, SimpleVideoPlayer::class.java,
-                                "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}",
-                                movie.title
-                            )
-                        }
-                        dismissProgress()
-                        return
+        lifecycleScope.launch {
+            try {
+                val result = PSVS.INSTANCE.search(movie.code)
+                if (result.success && result.response.videos.isNotEmpty()) {
+                    video = result.response.videos[0]
+                    if (!isFinishing && !isDestroyed) {
+                        val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}"
+                        VideoPlayerActivity.start(this@MovieActivity, url, movie.title)
+                    }
+                } else {
+                    if (!isFinishing && !isDestroyed) {
+                        Toast.makeText(this@MovieActivity, "该影片暂无在线视频源", Toast.LENGTH_LONG).show()
                     }
                 }
-                if (!isFinishing && !isDestroyed) {
-                    Toast.makeText(this@MovieActivity, "该影片暂无在线视频源", Toast.LENGTH_LONG).show()
-                }
-                dismissProgress()
-            }
-
-            override fun onFailure(call: Call<AvgleSearchResult>, t: Throwable) {
-                t.printStackTrace()
+            } catch (e: Exception) {
+                e.printStackTrace()
                 if (!isFinishing && !isDestroyed) {
                     Toast.makeText(this@MovieActivity, "获取在线视频源失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
                 }
-                dismissProgress()
             }
-        })
+            dismissProgress()
+        }
     }
 
     private fun dismissProgress() {
@@ -336,15 +335,8 @@ class MovieActivity : SecureActivity() {
         progressDialog = null
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (cn.jzvd.JZVideoPlayer.backPress()) return
-        super.onBackPressed()
-    }
-
     override fun onDestroy() {
         dismissProgress()
         super.onDestroy()
-        cn.jzvd.JZVideoPlayer.releaseAllVideos()
     }
 }

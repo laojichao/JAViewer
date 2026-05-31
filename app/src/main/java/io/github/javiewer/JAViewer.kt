@@ -7,13 +7,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParseException
-import com.google.gson.stream.JsonReader
 import dagger.hilt.android.HiltAndroidApp
 import io.github.javiewer.adapter.item.DataSource
 import io.github.javiewer.network.BasicService
+import kotlinx.serialization.json.Json
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -51,14 +48,12 @@ class JAViewer : Application() {
         @JvmField
         val hostReplacements: MutableMap<String, String> = java.util.concurrent.ConcurrentHashMap()
 
-        private val GSON: Gson = GsonBuilder().create()
-
         @JvmField
         val httpClient: OkHttpClient = OkHttpClient.Builder()
             .addInterceptor(Interceptor { chain ->
                 val original = chain.request()
                 val request = original.newBuilder()
-                    .url(replaceUrl(original.url()))
+                    .url(replaceUrl(original.url))
                     .header("User-Agent", USER_AGENT)
                     .build()
                 chain.proceed(request)
@@ -95,6 +90,7 @@ class JAViewer : Application() {
             val dir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 File(context.getExternalFilesDir(null), "JAViewer/")
             } else {
+                @Suppress("DEPRECATION")
                 File(Environment.getExternalStorageDirectory(), "JAViewer/")
             }
             dir.mkdirs()
@@ -103,19 +99,16 @@ class JAViewer : Application() {
 
         @JvmStatic
         fun replaceUrl(url: HttpUrl): HttpUrl {
-            val host = url.host()
+            val host = url.host
             val replacement = hostReplacements[host] ?: return url
             return url.newBuilder().host(replacement).build()
         }
 
-        @JvmStatic
-        fun <T> parseJson(beanClass: Class<T>, reader: JsonReader): T {
-            return GSON.fromJson(reader, beanClass)
-        }
+        val kotlinJson = Json { ignoreUnknownKeys = true }
 
         @JvmStatic
-        fun <T> parseJson(beanClass: Class<T>, json: String): T {
-            return GSON.fromJson(json, beanClass)
+        inline fun <reified T> parseJson(json: String): T {
+            return kotlinJson.decodeFromString(json)
         }
 
         @JvmStatic

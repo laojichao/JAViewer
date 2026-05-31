@@ -2,8 +2,7 @@ package io.github.javiewer.fragment
 
 import io.github.javiewer.JAViewer
 import okhttp3.ResponseBody
-import retrofit2.Call
 
 class HomeFragment : MovieFragment() {
-    override fun newCall(page: Int): Call<ResponseBody>? = JAViewer.SERVICE?.getHomePage(page)
+    override suspend fun loadData(page: Int): ResponseBody? = JAViewer.SERVICE?.getHomePage(page)
 }

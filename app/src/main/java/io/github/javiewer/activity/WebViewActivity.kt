@@ -90,7 +90,7 @@ class WebViewActivity : SecureActivity() {
                                 return
                             }
                             try {
-                                val json = response.body()?.string() ?: return
+                                val json = response.body?.string() ?: return
                                 val obj = Gson().fromJson(json, JsonObject::class.java)
                                 val playBack = obj.get("url").asString
                                 testVideoPlayBack(playBack)
@@ -125,7 +125,7 @@ class WebViewActivity : SecureActivity() {
                     return
                 }
                 if (response.isSuccessful) {
-                    val m3u8Url = response.request().url().toString()
+                    val m3u8Url = response.request.url.toString()
                     runOnUiThread {
                         if (!isFinishing && !isDestroyed) {
                             val intent = Intent().apply {

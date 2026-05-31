@@ -6,16 +6,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import io.github.javiewer.R
 import io.github.javiewer.adapter.item.Actress
 import io.github.javiewer.databinding.LayoutActressBinding
-import io.github.javiewer.view.SquareTopCrop
+import io.github.javiewer.repository.ConfigRepository
 import io.github.javiewer.view.listener.ActressClickListener
 import io.github.javiewer.view.listener.ActressLongClickListener
 
 class ActressAdapter(
     items: MutableList<Actress>,
-    private val activity: Activity?
+    private val activity: Activity?,
+    private val configRepository: ConfigRepository
 ) : ItemAdapter<Actress, ActressAdapter.ViewHolder>(items) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,14 +29,14 @@ class ActressAdapter(
         val actress = getItems()[position]
         holder.bind(actress)
         holder.binding.layoutActress.setOnClickListener(ActressClickListener(actress, activity))
-        holder.binding.layoutActress.setOnLongClickListener(ActressLongClickListener(actress, activity))
+        holder.binding.layoutActress.setOnLongClickListener(ActressLongClickListener(actress, activity, configRepository))
         holder.binding.actressImg.setImageDrawable(null)
         Glide.with(holder.binding.actressImg.context.applicationContext)
             .load(actress.imageUrl)
             .placeholder(R.drawable.ic_movie_actresses)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .skipMemoryCache(true)
-            .transform(SquareTopCrop())
+            .transform(CircleCrop())
             .dontAnimate()
             .into(holder.binding.actressImg)
     }

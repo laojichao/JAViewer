@@ -2,16 +2,14 @@ package io.github.javiewer.fragment
 
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
-import jp.wasabeef.recyclerview.animators.SlideInUpAnimator
 import io.github.javiewer.adapter.MovieAdapter
 import io.github.javiewer.adapter.item.Movie
 import io.github.javiewer.network.provider.AVMOProvider
 import io.github.javiewer.view.decoration.MovieItemDecoration
 import io.github.javiewer.view.listener.EndlessOnScrollListener
 import okhttp3.ResponseBody
-import retrofit2.Call
 
 abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
 
@@ -19,15 +17,12 @@ abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
         super.onViewCreated(view, savedInstanceState)
         setLayoutManager(LinearLayoutManager(context))
         mRecyclerView.addItemDecoration(MovieItemDecoration())
-        setAdapter(SlideInBottomAnimationAdapter(MovieAdapter(getItems(), activity)))
-        val animator = SlideInUpAnimator()
-        animator.addDuration = 300
-        mRecyclerView.itemAnimator = animator
+        setAdapter(MovieAdapter(getItems(), activity))
 
         setOnRefreshListener { getOnScrollListener()?.refresh() }
 
-        addOnScrollListener(object : EndlessOnScrollListener<Movie>() {
-            override fun newCall(page: Int): Call<ResponseBody>? = this@MovieFragment.newCall(page)
+        addOnScrollListener(object : EndlessOnScrollListener<Movie>(viewLifecycleOwner.lifecycleScope) {
+            override suspend fun loadData(page: Int): ResponseBody? = this@MovieFragment.loadData(page)
             override fun getLayoutManager() = this@MovieFragment.getLayoutManager()
             override fun getRefreshLayout() = this@MovieFragment.mRefreshLayout
             override fun getItems() = this@MovieFragment.getItems()
@@ -49,5 +44,5 @@ abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
 
     }
 
-    abstract fun newCall(page: Int): Call<ResponseBody>?
+    abstract suspend fun loadData(page: Int): ResponseBody?
 }

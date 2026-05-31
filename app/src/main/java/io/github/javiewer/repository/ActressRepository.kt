@@ -10,6 +10,8 @@ import javax.inject.Singleton
 class ActressRepository @Inject constructor(
     private val service: BasicService
 ) {
-    fun getActresses(page: Int) = service.getActresses(page)
-    fun parseActresses(html: String): List<Actress> = AVMOProvider.parseActresses(html)
+    suspend fun getActresses(page: Int): List<Actress> {
+        val html = service.getActresses(page).string()
+        return AVMOProvider.parseActresses(html)
+    }
 }

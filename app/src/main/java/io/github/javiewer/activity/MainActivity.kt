@@ -1,6 +1,5 @@
 package io.github.javiewer.activity
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -11,15 +10,10 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
-import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.navigation.NavigationView
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.AbstractBadgeableDrawerItem
@@ -27,6 +21,7 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialize.util.UIUtils
+import androidx.constraintlayout.widget.Guideline
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.javiewer.JAViewer
 import io.github.javiewer.R
@@ -39,8 +34,11 @@ import io.github.javiewer.fragment.PopularFragment
 import io.github.javiewer.fragment.ReleasedFragment
 import io.github.javiewer.fragment.genre.GenreTabsFragment
 import io.github.javiewer.network.BasicService
+import io.github.javiewer.repository.ConfigRepository
+import io.github.javiewer.repository.DataSourceRepository
 import io.github.javiewer.view.SimpleSearchView
 import java.net.URLEncoder
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : SecureActivity() {
@@ -64,6 +62,9 @@ class MainActivity : SecureActivity() {
             ID_GENRE to GenreTabsFragment::class.java
         )
     }
+
+    @Inject lateinit var configRepository: ConfigRepository
+    @Inject lateinit var dataSourceRepository: DataSourceRepository
 
     private lateinit var binding: ActivityMainBinding
     var currentFragment: Fragment? = null
@@ -137,7 +138,7 @@ class MainActivity : SecureActivity() {
         mDrawer = result
 
         val textSource = result.header.findViewById<TextView>(R.id.text_view_source)
-        textSource.text = JAViewer.getDataSource().toString()
+        textSource.text = configRepository.getDataSource().toString()
 
         val btnSwitch = result.header.findViewById<MaterialButton>(R.id.btn_switch_source)
         btnSwitch.setOnClickListener { onSwitchSource() }
@@ -226,7 +227,7 @@ class MainActivity : SecureActivity() {
                         MovieListActivity.newIntent(
                             this@MainActivity,
                             "$query 的搜索结果",
-                            "${JAViewer.getDataSource().link}${BasicService.LANGUAGE_NODE}/search/${URLEncoder.encode(query, "UTF-8")}"
+                            "${configRepository.getDataSource().link}${BasicService.LANGUAGE_NODE}/search/${URLEncoder.encode(query, "UTF-8")}"
                         )
                     )
                 } catch (_: Exception) {
@@ -247,15 +248,15 @@ class MainActivity : SecureActivity() {
     }
 
     fun onSwitchSource() {
-        val ds = JAViewer.DATA_SOURCES.toTypedArray()
+        val ds = dataSourceRepository.getDataSources().toTypedArray()
         val items = ds.map { it.toString() }.toTypedArray()
         AlertDialog.Builder(this)
             .setTitle("选择数据源")
             .setItems(items) { _, which ->
-                val newSource = JAViewer.DATA_SOURCES[which]
-                if (newSource == JAViewer.getDataSource()) return@setItems
-                JAViewer.CONFIGURATIONS?.setDataSource(newSource)
-                JAViewer.CONFIGURATIONS?.save()
+                val newSource = ds[which]
+                if (newSource == configRepository.getDataSource()) return@setItems
+                configRepository.setDataSource(newSource)
+                JAViewer.recreateService()
                 restart()
             }
             .create()

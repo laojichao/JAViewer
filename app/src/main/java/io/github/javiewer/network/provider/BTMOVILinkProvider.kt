@@ -5,11 +5,10 @@ import io.github.javiewer.adapter.item.MagnetLink
 import io.github.javiewer.network.BTMOVI
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
-import retrofit2.Call
 
 class BTMOVILinkProvider : DownloadLinkProvider() {
 
-    override fun search(keyword: String, page: Int): Call<ResponseBody>? {
+    override suspend fun search(keyword: String, page: Int): ResponseBody? {
         return if (page == 1) BTMOVI.INSTANCE.searchSingle(keyword) else null
     }
 
@@ -35,7 +34,7 @@ class BTMOVILinkProvider : DownloadLinkProvider() {
         return links
     }
 
-    override fun get(url: String): Call<ResponseBody> {
+    override suspend fun get(url: String): ResponseBody {
         return BTMOVI.INSTANCE.get(url)
     }
 

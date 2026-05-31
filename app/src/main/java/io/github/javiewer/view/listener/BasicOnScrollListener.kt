@@ -6,12 +6,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
+abstract class BasicOnScrollListener<I>(
+    private val scope: CoroutineScope
+) : RecyclerView.OnScrollListener() {
 
     private var loading = false
     private var loadThreshold = 5
@@ -19,9 +21,11 @@ abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
     private var token = 0L
     private var end = false
     private var cancelled = false
+    private var loadJob: Job? = null
 
     fun onViewDestroyed() {
         cancelled = true
+        loadJob?.cancel()
     }
 
     fun reset() {
@@ -29,6 +33,7 @@ abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
         loadThreshold = 5
         currentPage = 0
         end = false
+        loadJob?.cancel()
         val oldSize = getItems().size
         if (oldSize > 0) {
             getItems().clear()
@@ -46,7 +51,7 @@ abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
     abstract fun getRefreshLayout(): SwipeRefreshLayout
     abstract fun getItems(): MutableList<I>
     abstract fun getAdapter(): RecyclerView.Adapter<*>?
-    abstract fun newCall(page: Int): Call<ResponseBody>?
+    abstract suspend fun loadData(page: Int): ResponseBody?
 
     fun refresh() {
         setLoading(true)
@@ -56,47 +61,27 @@ abstract class BasicOnScrollListener<I> : RecyclerView.OnScrollListener() {
 
     private fun onLoad(requestToken: Long) {
         val page = currentPage
-        val call = newCall(page + 1) ?: run {
-            if (!cancelled) {
-                setLoading(false)
-                getRefreshLayout().isRefreshing = false
-            }
-            return
-        }
-        call.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (cancelled) {
-                    response.body()?.close()
-                    return
-                }
+        loadJob = scope.launch {
+            try {
+                val body = loadData(page + 1)
+                if (cancelled) return@launch
                 if (requestToken == token && page == currentPage) {
-                    try {
-                        val body = response.body()
-                        if (body != null) {
-                            body.use {
-                                onResult(it)
-                            }
-                            currentPage++
-                        }
-                    } catch (e: Throwable) {
-                        onFailure(call, e)
+                    if (body != null) {
+                        body.use { onResult(it) }
+                        currentPage++
                     }
                     setLoading(false)
                     getRefreshLayout().isRefreshing = false
-                } else {
-                    response.body()?.close()
                 }
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                if (cancelled) return
+            } catch (e: Throwable) {
+                if (cancelled) return@launch
                 if (requestToken == token && page == currentPage) {
                     setLoading(false)
                     getRefreshLayout().isRefreshing = false
-                    onExceptionCaught(t)
+                    onExceptionCaught(e)
                 }
             }
-        })
+        }
     }
 
     open fun onExceptionCaught(t: Throwable) {}

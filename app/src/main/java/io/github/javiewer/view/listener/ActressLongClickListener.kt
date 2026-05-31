@@ -7,17 +7,18 @@ import android.content.Context
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import io.github.javiewer.JAViewer
 import io.github.javiewer.activity.FavouriteActivity
 import io.github.javiewer.adapter.item.Actress
+import io.github.javiewer.repository.ConfigRepository
 
 class ActressLongClickListener(
     private val actress: Actress,
-    private val activity: Activity?
+    private val activity: Activity?,
+    private val configRepository: ConfigRepository
 ) : View.OnLongClickListener {
 
     override fun onLongClick(v: View): Boolean {
-        val actresses = JAViewer.CONFIGURATIONS?.getStarredActresses() ?: return true
+        val actresses = configRepository.getStarredActresses()
         val contain = actresses.contains(actress)
         val items = if (contain) arrayOf("复制女优名字", "取消收藏") else arrayOf("复制女优名字", "收藏")
 
@@ -39,7 +40,7 @@ class ActressLongClickListener(
                             actresses.add(0, actress)
                             Toast.makeText(act, "已收藏", Toast.LENGTH_SHORT).show()
                         }
-                        JAViewer.CONFIGURATIONS?.save()
+                        configRepository.saveConfigurations()
                         FavouriteActivity.update()
                     }
                 }

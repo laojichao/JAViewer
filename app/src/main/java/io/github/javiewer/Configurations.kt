@@ -38,7 +38,7 @@ class Configurations {
 
     fun getDataSource(): DataSource {
         return synchronized(this) {
-            if (data_source == null) data_source = JAViewer.DATA_SOURCES.firstOrNull() ?: DataSource.AVMO
+            if (data_source == null) data_source = DataSource.AVMO
             data_source!!
         }
     }
@@ -77,7 +77,7 @@ class Configurations {
             val config: Configurations? = try {
                 FileReader(file).use { reader ->
                     com.google.gson.stream.JsonReader(reader).use { jsonReader ->
-                        JAViewer.parseJson(Configurations::class.java, jsonReader)
+                        Gson().fromJson(jsonReader, Configurations::class.java)
                     }
                 }
             } catch (_: Exception) {

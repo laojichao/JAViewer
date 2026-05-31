@@ -5,7 +5,6 @@ import io.github.javiewer.adapter.item.Movie
 import io.github.javiewer.adapter.item.MovieDetail
 import io.github.javiewer.network.BasicService
 import io.github.javiewer.network.provider.AVMOProvider
-import okhttp3.ResponseBody
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,13 +12,33 @@ import javax.inject.Singleton
 class MovieRepository @Inject constructor(
     private val service: BasicService
 ) {
-    fun getHomePage(page: Int) = service.getHomePage(page)
-    fun getReleased(page: Int) = service.getReleased(page)
-    fun getPopular(page: Int) = service.getPopular(page)
-    fun get(url: String) = service.get(url)
+    suspend fun getMovies(page: Int): List<Movie> {
+        val html = service.getHomePage(page).string()
+        return AVMOProvider.parseMovies(html)
+    }
 
-    fun parseMovies(html: String): List<Movie> = AVMOProvider.parseMovies(html)
-    fun parseMovieDetail(html: String): MovieDetail = AVMOProvider.parseMoviesDetail(html)
-    fun parseGenres(html: String): LinkedHashMap<String, List<Genre>> = AVMOProvider.parseGenres(html)
-    fun getGenre() = service.getGenre()
+    suspend fun getReleased(page: Int): List<Movie> {
+        val html = service.getReleased(page).string()
+        return AVMOProvider.parseMovies(html)
+    }
+
+    suspend fun getPopular(page: Int): List<Movie> {
+        val html = service.getPopular(page).string()
+        return AVMOProvider.parseMovies(html)
+    }
+
+    suspend fun getMoviesFromUrl(url: String): List<Movie> {
+        val html = service.get(url).string()
+        return AVMOProvider.parseMovies(html)
+    }
+
+    suspend fun getMovieDetail(url: String): MovieDetail {
+        val html = service.get(url).string()
+        return AVMOProvider.parseMoviesDetail(html)
+    }
+
+    suspend fun getGenres(): LinkedHashMap<String, List<Genre>> {
+        val html = service.getGenre().string()
+        return AVMOProvider.parseGenres(html)
+    }
 }
