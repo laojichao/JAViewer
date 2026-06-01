@@ -12,6 +12,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * 首页 ViewModel，驱动 Compose HomeScreen 的数据加载。
+ *
+ * 支持多标签页（主页/已发布/热门/女优）的数据加载和无限滚动分页，
+ * 通过 [movies]、[actresses]、[isLoading]、[currentTab] 暴露 UI 状态。
+ *
+ * @property movieRepository 影片数据仓库
+ * @property actressRepository 女优数据仓库
+ */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val movieRepository: MovieRepository,
@@ -19,15 +28,19 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _movies = MutableStateFlow<List<Movie>>(emptyList())
+    /** 当前标签页的影片列表 */
     val movies: StateFlow<List<Movie>> = _movies
 
     private val _actresses = MutableStateFlow<List<Actress>>(emptyList())
+    /** 当前标签页的女优列表 */
     val actresses: StateFlow<List<Actress>> = _actresses
 
     private val _isLoading = MutableStateFlow(false)
+    /** 是否正在加载数据 */
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _currentTab = MutableStateFlow(0)
+    /** 当前选中的标签页索引：0=主页, 1=已发布, 2=热门, 3=女优 */
     val currentTab: StateFlow<Int> = _currentTab
 
     private var currentPage = 0
@@ -37,6 +50,11 @@ class HomeViewModel @Inject constructor(
         loadTab(0)
     }
 
+    /**
+     * 切换标签页并重新加载数据。
+     *
+     * @param tab 标签页索引：0=主页, 1=已发布, 2=热门, 3=女优
+     */
     fun loadTab(tab: Int) {
         _currentTab.value = tab
         currentPage = 0
@@ -46,6 +64,7 @@ class HomeViewModel @Inject constructor(
         loadNextPage()
     }
 
+    /** 下拉刷新，重置分页状态并重新加载 */
     fun refresh() {
         currentPage = 0
         isEnd = false
@@ -54,6 +73,7 @@ class HomeViewModel @Inject constructor(
         loadNextPage()
     }
 
+    /** 加载下一页数据，滚动到底部时自动触发 */
     fun loadNextPage() {
         if (_isLoading.value || isEnd) return
         _isLoading.value = true

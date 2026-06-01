@@ -12,6 +12,12 @@ import io.github.javiewer.databinding.ActivityDownloadBinding
 import io.github.javiewer.fragment.DownloadFragment
 import io.github.javiewer.viewmodel.DownloadViewModel
 
+/**
+ * 下载搜索 Activity，以标签页形式展示多个种子搜索站点的结果。
+ *
+ * 包含 4 个标签页：BTSO、Torrent Kitty、白虎、磁力蜘蛛。
+ * 每 20 次下载弹出捐赠提示对话框。
+ */
 @AndroidEntryPoint
 class DownloadActivity : SecureActivity() {
 

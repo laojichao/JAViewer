@@ -16,12 +16,21 @@ import io.github.javiewer.fragment.favourite.FavouriteFragment
 import io.github.javiewer.fragment.favourite.FavouriteMovieFragment
 import java.lang.ref.WeakReference
 
+/**
+ * 收藏夹 Activity，使用底部导航栏切换"作品"和"女优"两个标签页。
+ *
+ * 通过静态 [WeakReference] 持有实例，允许从 [MovieActivity] 触发列表刷新。
+ * **注意**：此 WeakReference 模式是反模式，后续应使用 SharedFlow 或共享 ViewModel 替代。
+ */
 @AndroidEntryPoint
 class FavouriteActivity : SecureActivity() {
 
     companion object {
         private var sInstance: WeakReference<FavouriteActivity>? = null
 
+        /**
+         * 通知收藏夹刷新数据。从其他 Activity（如 MovieActivity）调用。
+         */
         @JvmStatic
         fun update() {
             val activity = sInstance?.get()

@@ -17,6 +17,16 @@ import io.github.javiewer.activity.FavouriteActivity
 import io.github.javiewer.activity.MovieActivity
 import io.github.javiewer.ui.screen.HomeScreen
 
+/**
+ * JAViewer 应用的 Navigation Compose 导航图。
+ *
+ * 定义所有 Compose 屏幕的路由和导航逻辑。
+ * 部分屏幕（影片详情、收藏夹）仍跳转到旧版 XML Activity，
+ * 待后续迁移完成后统一为 Compose 屏幕。
+ *
+ * @param navController 导航控制器
+ * @param startDestination 起始路由，默认为 [Screen.Home]
+ */
 @Composable
 fun JaviewerNavGraph(
     navController: NavHostController,

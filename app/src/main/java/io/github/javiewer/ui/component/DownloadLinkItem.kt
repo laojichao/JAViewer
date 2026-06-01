@@ -15,6 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.javiewer.adapter.item.DownloadLink
 
+/**
+ * 下载链接条目 Compose 组件，用于下载列表展示。
+ *
+ * 显示资源标题、文件大小和发布日期。
+ *
+ * @param link 下载链接数据
+ * @param onClick 点击回调（触发磁力链接获取）
+ * @param modifier 修饰符
+ */
 @Composable
 fun DownloadLinkItem(
     link: DownloadLink,

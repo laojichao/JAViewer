@@ -6,6 +6,12 @@ import io.github.javiewer.network.BTSO
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 
+/**
+ * BTSO 种子搜索站点的下载链接提供者实现。
+ *
+ * 解析 BTSO 搜索结果页面，提取文件名、大小、日期和详情链接。
+ * 磁力链接需从详情页中提取（class="magnet-link"）。
+ */
 class BTSOLinkProvider : DownloadLinkProvider() {
 
     override suspend fun search(keyword: String, page: Int): ResponseBody {

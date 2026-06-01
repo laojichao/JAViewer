@@ -42,6 +42,17 @@ import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
+/**
+ * 影片详情 Activity，展示影片的完整信息。
+ *
+ * 包含折叠工具栏（大封面）、头部信息、截图网格、女优列表、类别标签，
+ * 以及预览/播放/下载/收藏/分享功能。
+ *
+ * 使用 [MovieDetailViewModel] 通过 StateFlow 管理 UI 状态，
+ * 使用 [PSVS] API 搜索预览和在线视频源。
+ *
+ * @property configRepository 用户配置仓库
+ */
 @AndroidEntryPoint
 class MovieActivity : SecureActivity() {
 
@@ -118,6 +129,7 @@ class MovieActivity : SecureActivity() {
         viewModel.loadDetail(movieLink, movie.title)
     }
 
+    /** 展示影片详情信息 */
     private fun displayInfo(detail: MovieDetail) {
         val contentBinding = binding.movieContent
         val headersBinding = contentBinding.movieHeaders
@@ -238,6 +250,7 @@ class MovieActivity : SecureActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    /** 截取详情页完整截图用于分享 */
     private fun getScreenBitmap(): Bitmap {
         val contentView = binding.movieContent.root
         val imageHeight = binding.toolbarLayoutBackground.height
@@ -262,6 +275,7 @@ class MovieActivity : SecureActivity() {
         return result
     }
 
+    /** 点击预览按钮，搜索并播放预览视频 */
     fun onClickPreview() {
         if (video != null) {
             VideoPlayerActivity.start(this, video!!.preview_video_url, movie.title)
@@ -294,6 +308,7 @@ class MovieActivity : SecureActivity() {
         }
     }
 
+    /** 点击播放按钮，搜索并播放在线视频 */
     fun onPlay() {
         val ts = (System.currentTimeMillis() / 1000).toString()
         if (video != null) {
@@ -328,6 +343,7 @@ class MovieActivity : SecureActivity() {
         }
     }
 
+    /** 关闭进度对话框 */
     private fun dismissProgress() {
         progressDialog?.let {
             if (!isFinishing && !isDestroyed && it.isShowing) it.dismiss()

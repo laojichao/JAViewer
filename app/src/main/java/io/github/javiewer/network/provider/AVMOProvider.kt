@@ -7,8 +7,24 @@ import io.github.javiewer.adapter.item.MovieDetail
 import io.github.javiewer.adapter.item.Screenshot
 import org.jsoup.Jsoup
 
+/**
+ * AVMOO 主站 HTML 解析器，负责将 HTML 页面解析为领域模型。
+ *
+ * 使用 Jsoup 解析 HTML DOM，提取影片列表、女优列表、影片详情和类别信息。
+ * 所有方法均为静态方法（通过 [JvmStatic] 暴露给 Java）。
+ *
+ * **注意**：解析逻辑与站点 DOM 结构强耦合，站点改版可能需要更新选择器。
+ */
 object AVMOProvider {
 
+    /**
+     * 解析影片列表页面 HTML。
+     *
+     * 选择器：`a[class*=movie-box]`，提取标题、编号、日期、封面和详情链接。
+     *
+     * @param html 影片列表页面 HTML
+     * @return 解析后的影片列表
+     */
     @JvmStatic
     fun parseMovies(html: String): List<Movie> {
         val document = Jsoup.parse(html)
@@ -33,6 +49,14 @@ object AVMOProvider {
         return movies
     }
 
+    /**
+     * 解析女优列表页面 HTML。
+     *
+     * 选择器：`a[class*=avatar-box]`，提取名称、头像和详情链接。
+     *
+     * @param html 女优列表页面 HTML
+     * @return 解析后的女优列表
+     */
     @JvmStatic
     fun parseActresses(html: String): List<Actress> {
         val document = Jsoup.parse(html)
@@ -51,6 +75,14 @@ object AVMOProvider {
         return actresses
     }
 
+    /**
+     * 解析影片详情页面 HTML。
+     *
+     * 提取标题、大封面、截图列表、女优列表、头部信息和类别标签。
+     *
+     * @param html 影片详情页面 HTML
+     * @return 解析后的 [MovieDetail] 实例
+     */
     @JvmStatic
     fun parseMoviesDetail(html: String): MovieDetail {
         val document = Jsoup.parse(html)
@@ -110,6 +142,12 @@ object AVMOProvider {
         return movie
     }
 
+    /**
+     * 解析类别页面 HTML，按分组返回类别列表。
+     *
+     * @param html 类别页面 HTML
+     * @return 以类别组标题为 key、类别列表为 value 的有序 Map
+     */
     @JvmStatic
     fun parseGenres(html: String): LinkedHashMap<String, List<Genre>> {
         val map = linkedMapOf<String, List<Genre>>()

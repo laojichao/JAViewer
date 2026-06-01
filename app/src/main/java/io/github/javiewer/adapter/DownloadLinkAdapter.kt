@@ -19,6 +19,16 @@ import io.github.javiewer.databinding.LayoutDownloadBinding
 import io.github.javiewer.network.provider.DownloadLinkProvider
 import kotlinx.coroutines.launch
 
+/**
+ * 下载链接列表适配器，展示资源条目并处理磁力链接获取。
+ *
+ * 点击条目时：若已有磁力链接则直接弹出操作对话框；
+ * 否则通过协程异步获取磁力链接后弹出对话框。
+ *
+ * @param items 下载链接数据列表
+ * @param activity 当前 Activity
+ * @param provider 下载链接提供者，用于获取磁力链接
+ */
 class DownloadLinkAdapter(
     items: MutableList<DownloadLink>,
     private val activity: Activity?,
@@ -62,6 +72,7 @@ class DownloadLinkAdapter(
         }
     }
 
+    /** 弹出磁力链接操作对话框（复制/打开/取消） */
     private fun onMagnetGet(magnetLink: String?) {
         val act = activity ?: return
         if (!magnetLink.isNullOrEmpty()) {

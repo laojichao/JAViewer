@@ -11,6 +11,12 @@ import io.github.javiewer.view.decoration.MovieItemDecoration
 import io.github.javiewer.view.listener.EndlessOnScrollListener
 import okhttp3.ResponseBody
 
+/**
+ * 影片列表 Fragment 抽象基类，配置 LinearLayoutManager、影片适配器和无限滚动分页。
+ *
+ * 子类只需实现 [loadData] 提供对应页面的 Retrofit 调用即可。
+ * 用于主页、热门、已发布、搜索结果等影片列表场景。
+ */
 abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,5 +50,11 @@ abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
 
     }
 
+    /**
+     * 加载指定页数据，由子类实现。
+     *
+     * @param page 页码
+     * @return 页面 HTML 内容
+     */
     abstract suspend fun loadData(page: Int): ResponseBody?
 }

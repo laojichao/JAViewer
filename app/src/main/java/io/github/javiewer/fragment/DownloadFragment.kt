@@ -11,6 +11,12 @@ import io.github.javiewer.view.decoration.DownloadItemDecoration
 import io.github.javiewer.view.listener.BasicOnScrollListener
 import okhttp3.ResponseBody
 
+/**
+ * 下载链接列表 Fragment，展示指定种子搜索站点的搜索结果。
+ *
+ * 通过 arguments 的 "provider" 字段指定搜索站点名称（btso/torrentkitty/bh/btmovi），
+ * "keyword" 字段指定搜索关键词。使用有限分页（非无限滚动）。
+ */
 class DownloadFragment : RecyclerFragment<DownloadLink, LinearLayoutManager>() {
 
     private var provider: DownloadLinkProvider? = null

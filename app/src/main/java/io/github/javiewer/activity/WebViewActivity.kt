@@ -26,6 +26,14 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 
+/**
+ * WebView Activity，用于加载嵌入式视频 iframe 并提取 m3u8 播放地址。
+ *
+ * 通过拦截包含 `?hash=` 的网络请求，解析 JSON 响应获取视频 URL，
+ * 然后测试播放地址可用性后返回给调用方。
+ *
+ * 包含"解锁"按钮用于允许 WebView 触摸事件（验证码场景）。
+ */
 @AndroidEntryPoint
 class WebViewActivity : SecureActivity() {
 
@@ -44,6 +52,13 @@ class WebViewActivity : SecureActivity() {
             })
             .build()
 
+        /**
+         * 创建启动 Intent。
+         *
+         * @param context 上下文
+         * @param embeddedUrl 嵌入式视频 iframe URL
+         * @return 配置好的 Intent
+         */
         @JvmStatic
         fun newIntent(context: Context, embeddedUrl: String): Intent {
             return Intent(context, WebViewActivity::class.java).apply {
@@ -115,6 +130,7 @@ class WebViewActivity : SecureActivity() {
         )
     }
 
+    /** 测试视频播放地址可用性，成功后返回 m3u8 URL */
     private fun testVideoPlayBack(url: String) {
         val request = Request.Builder().url(url).get().build()
         httpClient.newCall(request).enqueue(object : Callback {
@@ -141,6 +157,7 @@ class WebViewActivity : SecureActivity() {
         })
     }
 
+    /** 解除 WebView 触摸锁定，允许用户完成验证码 */
     fun onUnlock(button: Button) {
         locked = false
         button.isEnabled = false

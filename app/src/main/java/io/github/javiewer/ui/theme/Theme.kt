@@ -10,6 +10,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
+/** 浅色主题配色方案 */
 private val LightColorScheme = lightColorScheme(
     primary = Primary,
     onPrimary = OnPrimary,
@@ -20,6 +21,7 @@ private val LightColorScheme = lightColorScheme(
     onSurface = OnSurface,
 )
 
+/** 暗色主题配色方案 */
 private val DarkColorScheme = darkColorScheme(
     primary = Primary,
     onPrimary = OnPrimary,
@@ -30,6 +32,15 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = DarkOnSurface,
 )
 
+/**
+ * JAViewer 应用主题。
+ *
+ * Android 12+ 设备使用 Material You 动态颜色，旧设备使用自定义配色方案。
+ * 支持浅色和暗色主题自动切换。
+ *
+ * @param darkTheme 是否使用暗色主题，默认跟随系统设置
+ * @param content 主题包裹的内容
+ */
 @Composable
 fun JaviewerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

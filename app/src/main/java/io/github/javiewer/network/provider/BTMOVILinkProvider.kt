@@ -6,6 +6,11 @@ import io.github.javiewer.network.BTMOVI
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 
+/**
+ * BTMOVI 种子搜索站点的下载链接提供者实现。
+ *
+ * 仅支持第一页搜索。磁力链接需从详情页中提取（id="down-url"）。
+ */
 class BTMOVILinkProvider : DownloadLinkProvider() {
 
     override suspend fun search(keyword: String, page: Int): ResponseBody? {

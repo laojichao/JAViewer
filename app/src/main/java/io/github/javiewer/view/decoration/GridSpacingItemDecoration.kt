@@ -4,6 +4,13 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * 网格布局间距装饰，支持均匀分布间距和边缘间距。
+ *
+ * @property spanCount 网格列数
+ * @property spacing 间距值（px）
+ * @property includeEdge 是否包含边缘间距
+ */
 class GridSpacingItemDecoration(
     private val spanCount: Int,
     private val spacing: Int,

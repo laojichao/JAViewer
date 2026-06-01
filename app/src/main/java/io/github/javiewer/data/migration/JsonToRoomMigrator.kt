@@ -14,6 +14,19 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * JSON 到 Room 的数据迁移器。
+ *
+ * 在应用首次升级到 Room 版本时，将旧版 `configurations.json` 中的
+ * 收藏数据和配置数据迁移到 Room 数据库和 DataStore。
+ *
+ * 迁移完成后标记 DataStore 中已有数据源配置，后续启动不再重复迁移。
+ *
+ * @property context 应用上下文
+ * @property movieDao 影片收藏 DAO
+ * @property actressDao 女优收藏 DAO
+ * @property configDataStore 键值对配置存储
+ */
 @Singleton
 class JsonToRoomMigrator @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -21,6 +34,12 @@ class JsonToRoomMigrator @Inject constructor(
     private val actressDao: FavoriteActressDao,
     private val configDataStore: ConfigDataStore
 ) {
+    /**
+     * 检查并执行数据迁移。
+     *
+     * 通过检查 DataStore 中是否已有数据源配置来判断是否已迁移，
+     * 避免重复迁移。迁移内容包括收藏影片、收藏女优、数据源和下载计数器。
+     */
     suspend fun migrateIfNeeded() {
         val prefs = configDataStore.configValues.first()
         if (prefs.dataSourceName.isNotEmpty()) return // Already migrated

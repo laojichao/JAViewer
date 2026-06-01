@@ -13,6 +13,17 @@ import io.github.javiewer.adapter.item.Screenshot
 import io.github.javiewer.databinding.LayoutScreenshotBinding
 import io.github.javiewer.view.ViewUtil
 
+/**
+ * 截图列表适配器，用于影片详情页展示截图网格。
+ *
+ * 点击截图跳转到 [GalleryActivity] 图片画廊，支持缩放浏览。
+ * 首项自动对齐图标位置。
+ *
+ * @param screenshots 截图数据列表
+ * @param activity 当前 Activity
+ * @param icon 需要对齐的图标视图
+ * @param movie 所属影片数据，传递给画廊页
+ */
 class ScreenshotAdapter(
     private val screenshots: List<Screenshot>,
     private val activity: Activity?,

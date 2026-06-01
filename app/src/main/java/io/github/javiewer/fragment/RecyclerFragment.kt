@@ -13,6 +13,15 @@ import io.github.javiewer.databinding.FragmentRecyclerBinding
 import io.github.javiewer.view.ViewUtil
 import io.github.javiewer.view.listener.BasicOnScrollListener
 
+/**
+ * 带下拉刷新和分页加载的 RecyclerView Fragment 基类。
+ *
+ * 封装了 SwipeRefreshLayout + RecyclerView 的初始化、状态保存/恢复、
+ * 滚动监听器管理等通用逻辑。子类只需配置 LayoutManager、Adapter 和数据加载逻辑。
+ *
+ * @param I 列表项数据类型
+ * @param @param LM LayoutManager 类型
+ */
 abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment() {
 
     private var _binding: FragmentRecyclerBinding? = null
@@ -24,26 +33,41 @@ abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment()
     private var mScrollListener: BasicOnScrollListener<I>? = null
     private val items = ArrayList<I>()
 
+    /**
+     * 设置 RecyclerView 的内边距。
+     *
+     * @param dp dp 值
+     */
     protected fun setRecyclerViewPadding(dp: Int) {
         val px = ViewUtil.dpToPx(dp)
         mRecyclerView.setPadding(px, px, px, px)
     }
 
+    /** 获取当前 LayoutManager */
     @Suppress("UNCHECKED_CAST")
     fun getLayoutManager(): LM = mRecyclerView.layoutManager as LM
 
+    /** 设置 LayoutManager */
     fun setLayoutManager(manager: LM) {
         mRecyclerView.layoutManager = manager
     }
 
+    /** 获取当前 Adapter */
     fun getAdapter(): RecyclerView.Adapter<*>? = mRecyclerView.adapter
 
+    /** 设置 Adapter */
     fun setAdapter(adapter: RecyclerView.Adapter<*>) {
         mRecyclerView.adapter = adapter
     }
 
+    /** 获取列表数据源 */
     fun getItems(): ArrayList<I> = items
 
+    /**
+     * 替换列表数据并通知刷新。
+     *
+     * @param @param newItems 新的数据列表
+     */
     fun setItems(newItems: ArrayList<I>) {
         items.clear()
         items.addAll(newItems)
@@ -73,15 +97,27 @@ abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment()
         }
     }
 
+    /**
+     * 添加滚动分页监听器。
+     *
+     * @param listener 分页监听器实例
+     */
     fun addOnScrollListener(listener: BasicOnScrollListener<I>) {
         mRecyclerView.addOnScrollListener(listener)
         mScrollListener = listener
     }
 
+    /** 获取当前滚动监听器 */
     fun getOnScrollListener(): BasicOnScrollListener<I>? = mScrollListener
 
+    /** 获取当前刷新监听器 */
     fun getOnRefreshListener(): SwipeRefreshLayout.OnRefreshListener? = mRefreshListener
 
+    /**
+     * 设置下拉刷新监听器。
+     *
+     * @param listener 刷新监听器
+     */
     fun setOnRefreshListener(listener: SwipeRefreshLayout.OnRefreshListener) {
         mRefreshLayout.setOnRefreshListener(listener)
         mRefreshListener = listener

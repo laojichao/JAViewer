@@ -14,10 +14,24 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
+/**
+ * Hilt 网络依赖模块，提供 [OkHttpClient] 和 [BasicService] 单例。
+ *
+ * OkHttpClient 包含域名重写拦截器（将旧域名请求转发到当前域名）
+ * 和内存 Cookie 管理器。
+ *
+ * BasicService 基于当前数据源的 URL 创建，数据源切换后需重建。
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    /**
+     * 提供配置了域名重写拦截器的 OkHttpClient。
+     *
+     * 拦截器根据 [DataSourceRepository.getHostReplacements] 映射表
+     * 将旧域名请求自动转发到当前域名，确保历史 URL 仍然可用。
+     */
     @Provides
     @Singleton
     fun provideOkHttpClient(dataSourceRepository: DataSourceRepository): OkHttpClient {
@@ -52,6 +66,10 @@ object NetworkModule {
             .build()
     }
 
+    /**
+     * 提供 [BasicService] Retrofit 实例。
+     * 基于当前数据源 URL 创建，使用 [provideOkHttpClient] 提供的客户端。
+     */
     @Provides
     @Singleton
     fun provideBasicService(okHttpClient: OkHttpClient): BasicService {

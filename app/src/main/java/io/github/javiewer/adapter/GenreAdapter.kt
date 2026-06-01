@@ -8,6 +8,14 @@ import io.github.javiewer.activity.MovieListActivity
 import io.github.javiewer.adapter.item.Genre
 import io.github.javiewer.databinding.CardGenreBinding
 
+/**
+ * 类别标签适配器，用于网格展示影片类别。
+ *
+ * 点击类别跳转到该类别下的影片列表页。
+ *
+ * @param genres 类别数据列表
+ * @param activity 当前 Activity
+ */
 class GenreAdapter(
     private val genres: List<Genre>,
     private val activity: Activity?

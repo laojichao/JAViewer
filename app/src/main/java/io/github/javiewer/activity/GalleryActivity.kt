@@ -29,6 +29,12 @@ import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
+/**
+ * 图片画廊 Activity，全屏展示影片截图。
+ *
+ * 支持左右滑动切换图片、单击显示/隐藏工具栏、自动隐藏工具栏、
+ * 保存图片到本地存储。使用沉浸式模式隐藏系统导航栏。
+ */
 @AndroidEntryPoint
 class GalleryActivity : SecureActivity() {
 
@@ -105,11 +111,13 @@ class GalleryActivity : SecureActivity() {
         }
     }
 
+    /** 更新页码指示器并重置自动隐藏计时器 */
     private fun updateIndicator() {
         delayedHide(3000)
         supportActionBar?.title = "${binding.galleryPager.currentItem + 1} / ${imageUrls.size}"
     }
 
+    /** 切换工具栏显示/隐藏 */
     private fun toggle() {
         if (mVisible) hide() else {
             show()
@@ -117,6 +125,7 @@ class GalleryActivity : SecureActivity() {
         }
     }
 
+    /** 隐藏工具栏和系统栏 */
     private fun hide() {
         supportActionBar?.hide()
         binding.toolbarGallery.startAnimation(fadeOut)
@@ -125,6 +134,7 @@ class GalleryActivity : SecureActivity() {
         handler.postDelayed(hidePart2Runnable, 300)
     }
 
+    /** 显示工具栏 */
     @SuppressLint("InlinedApi")
     private fun show() {
         binding.galleryPager.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -133,6 +143,7 @@ class GalleryActivity : SecureActivity() {
         handler.postDelayed(showPart2Runnable, 300)
     }
 
+    /** 延迟隐藏工具栏 */
     private fun delayedHide(delayMillis: Int) {
         handler.removeCallbacks(hideRunnable)
         handler.postDelayed(hideRunnable, delayMillis.toLong())
@@ -193,6 +204,7 @@ class GalleryActivity : SecureActivity() {
         return true
     }
 
+    /** ViewPager 图片适配器 */
     private inner class ImageAdapter(
         private val context: Context,
         private val urls: Array<String>

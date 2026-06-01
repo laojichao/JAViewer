@@ -17,6 +17,16 @@ import io.github.javiewer.adapter.item.MovieDetail
 import io.github.javiewer.databinding.LayoutHeaderBinding
 import io.github.javiewer.view.ViewUtil
 
+/**
+ * 影片详情头部信息适配器，展示键值对形式的影片元数据。
+ *
+ * 长按可复制值到剪贴板。若条目包含链接，值文本显示为下划线样式，
+ * 点击跳转到对应的影片列表页。
+ *
+ * @param headers 头部信息列表
+ * @param activity 当前 Activity
+ * @param icon 需要对齐的图标视图
+ */
 class MovieHeaderAdapter(
     private val headers: List<MovieDetail.Header>,
     private val activity: Activity?,

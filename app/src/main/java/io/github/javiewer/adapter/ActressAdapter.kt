@@ -14,6 +14,16 @@ import io.github.javiewer.repository.ConfigRepository
 import io.github.javiewer.view.listener.ActressClickListener
 import io.github.javiewer.view.listener.ActressLongClickListener
 
+/**
+ * 女优列表适配器，用于 RecyclerView 展示女优条目。
+ *
+ * 点击跳转到该女优的作品列表，长按弹出收藏/复制菜单。
+ * 使用 Glide 的 [CircleCrop] 裁剪头像为圆形。
+ *
+ * @param items 女优数据列表
+ * @param activity 当前 Activity
+ * @param configRepository 用户配置仓库，用于收藏操作
+ */
 class ActressAdapter(
     items: MutableList<Actress>,
     private val activity: Activity?,

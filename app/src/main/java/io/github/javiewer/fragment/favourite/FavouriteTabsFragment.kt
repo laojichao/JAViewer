@@ -10,6 +10,11 @@ import io.github.javiewer.adapter.ViewPagerAdapter
 import io.github.javiewer.databinding.FragmentFavouriteBinding
 import io.github.javiewer.fragment.ExtendedAppBarFragment
 
+/**
+ * 收藏夹标签页 Fragment，包含"作品"和"女优"两个标签。
+ *
+ * 使用 ViewPager + TabLayout 实现标签切换。
+ */
 class FavouriteTabsFragment : ExtendedAppBarFragment() {
 
     private var _binding: FragmentFavouriteBinding? = null

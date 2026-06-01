@@ -13,14 +13,30 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** Context 扩展属性，提供 DataStore 实例 */
 val Context.configDataStore: DataStore<Preferences> by preferencesDataStore(name = "config")
 
+/**
+ * DataStore 配置值的数据类。
+ *
+ * @property dataSourceName 当前数据源名称
+ * @property dataSourceLink 当前数据源 URL
+ * @property downloadCounter 下载计数器值
+ */
 data class ConfigValues(
     val dataSourceName: String = "",
     val dataSourceLink: String = "",
     val downloadCounter: Long = 0
 )
 
+/**
+ * 基于 DataStore Preferences 的键值对配置存储。
+ *
+ * 用于持久化用户偏好设置（当前数据源、下载计数器），
+ * 替代旧版 JSON 文件存储方案。
+ *
+ * @property context 应用上下文
+ */
 @Singleton
 class ConfigDataStore @Inject constructor(
     @ApplicationContext private val context: Context
@@ -28,11 +44,17 @@ class ConfigDataStore @Inject constructor(
     private val dataStore get() = context.configDataStore
 
     companion object {
+        /** 数据源名称的偏好键 */
         val KEY_DATA_SOURCE_NAME = stringPreferencesKey("data_source_name")
+
+        /** 数据源 URL 的偏好键 */
         val KEY_DATA_SOURCE_LINK = stringPreferencesKey("data_source_link")
+
+        /** 下载计数器的偏好键 */
         val KEY_DOWNLOAD_COUNTER = longPreferencesKey("download_counter")
     }
 
+    /** 配置值的响应式数据流 */
     val configValues: Flow<ConfigValues> = dataStore.data.map { prefs ->
         ConfigValues(
             dataSourceName = prefs[KEY_DATA_SOURCE_NAME] ?: "",
@@ -41,6 +63,12 @@ class ConfigDataStore @Inject constructor(
         )
     }
 
+    /**
+     * 设置当前数据源。
+     *
+     * @param name 数据源名称
+     * @param link 数据源 URL
+     */
     suspend fun setDataSource(name: String, link: String) {
         dataStore.edit { prefs ->
             prefs[KEY_DATA_SOURCE_NAME] = name
@@ -48,6 +76,11 @@ class ConfigDataStore @Inject constructor(
         }
     }
 
+    /**
+     * 设置下载计数器值。
+     *
+     * @param counter 新的计数值
+     */
     suspend fun setDownloadCounter(counter: Long) {
         dataStore.edit { prefs ->
             prefs[KEY_DOWNLOAD_COUNTER] = counter

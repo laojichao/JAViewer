@@ -13,6 +13,12 @@ import io.github.javiewer.network.provider.AVMOProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+/**
+ * 类别标签页 Fragment，加载类别数据并为每个类别组创建 [GenreFragment] 标签。
+ *
+ * 使用协程异步加载类别页面 HTML，解析后动态创建 ViewPager 标签。
+ * 加载完成前显示 ProgressBar，完成后显示 TabLayout。
+ */
 class GenreTabsFragment : ExtendedAppBarFragment() {
 
     private var _binding: FragmentGenreBinding? = null

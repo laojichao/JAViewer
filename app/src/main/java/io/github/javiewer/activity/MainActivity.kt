@@ -40,6 +40,17 @@ import io.github.javiewer.view.SimpleSearchView
 import java.net.URLEncoder
 import javax.inject.Inject
 
+/**
+ * 旧版主页 Activity（XML 布局），使用 MaterialDrawer 实现导航抽屉。
+ *
+ * 管理 5 个 Fragment（主页/已发布/热门/女优/类别）的显示/隐藏切换，
+ * 支持搜索、数据源切换和收藏夹跳转。
+ *
+ * **注意**：此 Activity 正在被 Compose 版 [io.github.javiewer.ui.MainActivity] 逐步替代。
+ *
+ * @property configRepository 用户配置仓库
+ * @property dataSourceRepository 数据源仓库
+ */
 @AndroidEntryPoint
 class MainActivity : SecureActivity() {
 
@@ -54,6 +65,7 @@ class MainActivity : SecureActivity() {
         const val ID_GITHUB2 = 8L
         const val ID_GITHUB3 = 9L
 
+        /** Fragment 类映射表 */
         val FRAGMENTS = mapOf(
             ID_HOME to HomeFragment::class.java,
             ID_POPULAR to PopularFragment::class.java,
@@ -92,6 +104,7 @@ class MainActivity : SecureActivity() {
         buildDrawer()
     }
 
+    /** 构建 MaterialDrawer 导航抽屉 */
     private fun buildDrawer() {
         val result = DrawerBuilder()
             .withActivity(this)
@@ -150,6 +163,7 @@ class MainActivity : SecureActivity() {
         }
     }
 
+    /** 初始化所有 Fragment，预创建并隐藏 */
     private fun initFragments() {
         fragmentManager = supportFragmentManager
         if (savedState != null) {
@@ -169,6 +183,12 @@ class MainActivity : SecureActivity() {
         fragmentManager.executePendingTransactions()
     }
 
+    /**
+     * 切换显示指定 Fragment。
+     *
+     * @param fragment 目标 Fragment
+     * @param title 工具栏标题
+     */
     private fun setFragment(fragment: Fragment, title: CharSequence) {
         supportActionBar?.title = title
         val old = currentFragment
@@ -183,6 +203,7 @@ class MainActivity : SecureActivity() {
         }
     }
 
+    /** 根据 ID 切换 Fragment */
     private fun setFragment(id: Int, title: CharSequence) {
         val clazz = FRAGMENTS[id.toLong()] ?: return
         setFragment(fragmentManager.findFragmentByTag(clazz.simpleName) ?: return, title)
@@ -199,6 +220,7 @@ class MainActivity : SecureActivity() {
         appExit()
     }
 
+    /** 处理返回键：先关抽屉、再关搜索、双击退出 */
     private fun appExit() {
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -241,12 +263,14 @@ class MainActivity : SecureActivity() {
         return true
     }
 
+    /** 重启 Activity（用于数据源切换后刷新） */
     fun restart() {
         val intent = intent
         finish()
         startActivity(intent)
     }
 
+    /** 弹出数据源选择对话框 */
     fun onSwitchSource() {
         val ds = dataSourceRepository.getDataSources().toTypedArray()
         val items = ds.map { it.toString() }.toTypedArray()
@@ -263,6 +287,7 @@ class MainActivity : SecureActivity() {
             .show()
     }
 
+    /** 在浏览器中打开 URL */
     private fun openUrl(url: String) {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK

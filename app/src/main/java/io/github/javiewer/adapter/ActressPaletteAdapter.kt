@@ -20,6 +20,17 @@ import io.github.javiewer.view.ViewUtil
 import io.github.javiewer.view.listener.ActressClickListener
 import io.github.javiewer.view.listener.ActressLongClickListener
 
+/**
+ * 女优调色板适配器，用于影片详情页展示女优头像卡片。
+ *
+ * 使用 Palette 库从头像图片中提取亮色调作为卡片背景色，
+ * 实现视觉上的动态配色效果。
+ *
+ * @param actresses 女优数据列表
+ * @param activity 当前 Activity
+ * @param icon 需要对齐的图标视图
+ * @param configRepository 用户配置仓库，用于收藏操作
+ */
 class ActressPaletteAdapter(
     private val actresses: List<Actress>,
     private val activity: Activity?,

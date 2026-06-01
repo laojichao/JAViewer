@@ -15,6 +15,14 @@ import io.github.javiewer.activity.MovieActivity
 import io.github.javiewer.adapter.item.Movie
 import io.github.javiewer.databinding.CardMovieBinding
 
+/**
+ * 影片列表适配器，用于 RecyclerView 展示影片卡片。
+ *
+ * 点击卡片跳转到 [MovieActivity] 影片详情页。
+ * 使用 Glide 加载封面图片。
+ *
+ * @property showIfHot 是否显示热门标记，默认 true
+ */
 open class MovieAdapter(
     items: MutableList<Movie>,
     private val activity: Activity?

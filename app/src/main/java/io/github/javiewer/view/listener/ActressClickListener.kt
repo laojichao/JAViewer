@@ -5,6 +5,12 @@ import android.view.View
 import io.github.javiewer.activity.MovieListActivity
 import io.github.javiewer.adapter.item.Actress
 
+/**
+ * 女优点击监听器，点击后跳转到该女优的作品列表页。
+ *
+ * @property actress 被点击的女优数据
+ * @property activity 当前 Activity，用于启动新页面
+ */
 class ActressClickListener(
     private val actress: Actress,
     private val activity: Activity?

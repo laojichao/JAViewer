@@ -22,6 +22,17 @@ import io.github.javiewer.R
 import io.github.javiewer.adapter.item.Actress
 import io.github.javiewer.view.SquareTopCrop
 
+/**
+ * 女优卡片 Compose 组件，用于女优列表展示。
+ *
+ * 显示女优头像（Glide 加载 + SquareTopCrop 裁剪）和名称，
+ * 支持点击和长按手势。
+ *
+ * @param actress 女优数据
+ * @param onClick 点击回调
+ * @param onLongClick 长按回调
+ * @param modifier 修饰符
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ActressCard(

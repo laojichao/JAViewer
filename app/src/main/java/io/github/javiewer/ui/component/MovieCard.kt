@@ -27,6 +27,16 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import io.github.javiewer.R
 import io.github.javiewer.adapter.item.Movie
 
+/**
+ * 影片卡片 Compose 组件，用于影片列表展示。
+ *
+ * 显示影片封面（通过 Glide 加载）、标题、编号、发布日期和热门标记。
+ * 使用 [AndroidView] 桥接 Glide 图片加载，待迁移到 Coil 后可替换为原生 Compose 实现。
+ *
+ * @param movie 影片数据
+ * @param onClick 卡片点击回调
+ * @param modifier 修饰符
+ */
 @Composable
 fun MovieCard(
     movie: Movie,
@@ -96,5 +106,6 @@ fun MovieCard(
     }
 }
 
+/** dp 转 px 扩展函数 */
 private fun Int.dpToPx(context: android.content.Context): Int =
     (this * context.resources.displayMetrics.density).toInt()

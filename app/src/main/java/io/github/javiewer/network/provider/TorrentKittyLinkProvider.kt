@@ -6,6 +6,12 @@ import io.github.javiewer.network.TorrentKitty
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 
+/**
+ * TorrentKitty 种子搜索站点的下载链接提供者实现。
+ *
+ * 仅支持第一页搜索（不分页）。磁力链接直接从搜索结果中提取
+ * （rel="magnet" 属性），无需额外请求详情页。
+ */
 class TorrentKittyLinkProvider : DownloadLinkProvider() {
 
     override suspend fun search(keyword: String, page: Int): ResponseBody? {

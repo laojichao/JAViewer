@@ -15,6 +15,11 @@ import io.github.javiewer.view.listener.EndlessOnScrollListener
 import okhttp3.ResponseBody
 import javax.inject.Inject
 
+/**
+ * 女优列表 Fragment，展示女优卡片列表，支持无限滚动分页。
+ *
+ * 使用 Hilt 注入 [ConfigRepository] 以支持收藏操作。
+ */
 @AndroidEntryPoint
 class ActressesFragment : RecyclerFragment<Actress, LinearLayoutManager>() {
 

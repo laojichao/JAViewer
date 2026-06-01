@@ -9,6 +9,11 @@ import io.github.javiewer.repository.ConfigRepository
 import io.github.javiewer.view.decoration.ActressItemDecoration
 import javax.inject.Inject
 
+/**
+ * 收藏女优列表 Fragment，展示用户收藏的女优。
+ *
+ * 使用 Hilt 注入 [ConfigRepository] 获取收藏数据。
+ */
 @AndroidEntryPoint
 class FavouriteActressFragment : FavouriteFragment<Actress>() {
 

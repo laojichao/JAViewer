@@ -6,6 +6,12 @@ import io.github.javiewer.network.BH
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 
+/**
+ * BH 种子搜索站点的下载链接提供者实现。
+ *
+ * 仅支持第一页搜索。磁力链接直接从搜索结果的 `<a>` 标签 href 中提取，
+ * 无需额外请求详情页。
+ */
 class BHLinkProvider : DownloadLinkProvider() {
 
     override suspend fun search(keyword: String, page: Int): ResponseBody? {
@@ -38,6 +44,7 @@ class BHLinkProvider : DownloadLinkProvider() {
 
     override fun parseMagnetLink(htmlContent: String): MagnetLink? = null
 
+    /** 从元素中提取标题，优先使用 font 标签，回退到 h2 标签 */
     private fun getTitle(e: org.jsoup.nodes.Element): String {
         val font = e.getElementsByClass("layui-colla-title search-colla-title").first()?.getElementsByTag("font")?.text()
         if (!font.isNullOrEmpty()) return font

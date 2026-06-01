@@ -18,6 +18,19 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * 启动/闪屏 Activity，负责应用初始化流程。
+ *
+ * 初始化步骤：
+ * 1. 加载旧版 JSON 配置文件
+ * 2. 触发 JSON 到 Room 的数据迁移
+ * 3. 从 GitHub 获取远程配置（失败时回退到本地）
+ * 4. 初始化数据源和域名重写映射
+ * 5. 检查应用更新
+ * 6. 跳转到 [MainActivity]
+ *
+ * 使用 Hilt 注入 [PropertiesRepository]、[DataSourceRepository]、[JsonToRoomMigrator]。
+ */
 @AndroidEntryPoint
 class StartActivity : AppCompatActivity() {
 
@@ -31,6 +44,7 @@ class StartActivity : AppCompatActivity() {
         init()
     }
 
+    /** 初始化应用：加载配置、触发迁移、获取远程属性 */
     private fun init() {
         val config = File(JAViewer.getStorageDir(this), "configurations.json")
 
@@ -47,6 +61,7 @@ class StartActivity : AppCompatActivity() {
         loadProperties()
     }
 
+    /** 异步加载远程配置 */
     private fun loadProperties() {
         lifecycleScope.launch {
             val properties = propertiesRepository.fetchProperties()
@@ -56,6 +71,7 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
+    /** 处理远程配置：初始化数据源、检查更新 */
     private fun handleProperties(properties: io.github.javiewer.Properties) {
         if (isFinishing || isDestroyed) return
 
@@ -94,6 +110,7 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
+    /** 跳转到主页 */
     private fun start() {
         JAViewer.recreateService()
         startActivity(Intent(this, MainActivity::class.java))

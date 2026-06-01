@@ -48,6 +48,17 @@ import io.github.javiewer.util.UiState
 import io.github.javiewer.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * 首页 Compose 屏幕，替代旧版 [io.github.javiewer.activity.MainActivity] + [io.github.javiewer.fragment.HomeFragment]。
+ *
+ * 包含导航抽屉（主页/收藏夹/已发布/热门/女优/类别）和影片列表，
+ * 支持下拉刷新和无限滚动分页。
+ *
+ * @param onMovieClick 影片点击回调
+ * @param onFavoritesClick 收藏夹点击回调
+ * @param onSearch 搜索提交回调
+ * @param viewModel 首页 ViewModel，通过 Hilt 自动注入
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -124,6 +135,16 @@ fun HomeScreen(
     }
 }
 
+/**
+ * 影片列表组件，支持下拉刷新和无限滚动。
+ *
+ * @param movies 影片列表数据
+ * @param isLoading 是否正在加载
+ * @param onMovieClick 影片点击回调
+ * @param onLoadMore 触发加载更多回调
+ * @param onRefresh 下拉刷新回调
+ * @param modifier 修饰符
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MovieList(
