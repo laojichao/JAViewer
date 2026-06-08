@@ -36,7 +36,6 @@ class ScreenshotAdapter(
         return ViewHolder(binding)
     }
 
-    @Suppress("DEPRECATION")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val screenshot = screenshots[position]
         holder.binding.screenshotImageView.setImageDrawable(null)

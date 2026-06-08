@@ -116,6 +116,15 @@ class ConfigRepository @Inject constructor(
         runBlocking { movieDao.isStarred(movie.code) }
 
     /**
+     * 检查女优是否已收藏（同步阻塞版本）。
+     *
+     * @param actress 目标女优
+     * @return true 表示已收藏
+     */
+    fun isActressStarredSync(actress: Actress): Boolean =
+        runBlocking { actressDao.isStarred(actress.name) }
+
+    /**
      * 切换女优收藏状态。
      *
      * @param actress 目标女优
@@ -137,12 +146,16 @@ class ConfigRepository @Inject constructor(
     /**
      * 获取当前数据源。
      * 优先从 DataStore 读取，为空时回退到旧版 JSON 配置。
+     * 从 DataStore 恢复时会尝试从全局数据源列表中匹配 legacies 字段。
      */
     fun getDataSource(): DataSource {
         return try {
             val prefs = runBlocking { configDataStore.configValues.first() }
             if (prefs.dataSourceLink.isNotEmpty()) {
-                DataSource(prefs.dataSourceName, null, prefs.dataSourceLink)
+                // Try to find matching legacies from the global data sources list
+                val legacies = io.github.javiewer.JAViewer.DATA_SOURCES
+                    .firstOrNull { it.link == prefs.dataSourceLink }?.legacies
+                DataSource(prefs.dataSourceName, legacies, prefs.dataSourceLink)
             } else {
                 configurations.getDataSource()
             }

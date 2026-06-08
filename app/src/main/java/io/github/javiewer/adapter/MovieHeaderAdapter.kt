@@ -42,31 +42,30 @@ class MovieHeaderAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val header = headers[position]
-        if (header.name != null && header.value != null) {
-            holder.itemView.setOnLongClickListener {
-                val clip = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-                clip?.setPrimaryClip(ClipData.newPlainText(header.name, header.value))
-                activity?.let { Toast.makeText(it, "已复制到剪贴板", Toast.LENGTH_SHORT).show() }
-                true
-            }
-            holder.binding.headerName.text = header.name
-            holder.binding.headerValue.text = header.value
+        holder.binding.headerName.text = header.name
+        holder.binding.headerValue.text = header.value
 
-            if (header.link != null && activity != null) {
-                holder.binding.headerValue.paintFlags = holder.binding.headerValue.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-                holder.binding.headerValue.setTextColor(ResourcesCompat.getColor(activity.resources, R.color.colorAccent, null))
-                holder.binding.headerValue.setOnClickListener {
-                    activity.startActivity(MovieListActivity.newIntent(activity, "${header.name} ${header.value}", header.link!!))
-                }
-            } else {
-                holder.binding.headerValue.paintFlags = holder.binding.headerValue.paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv()
-                holder.binding.headerValue.setTextColor(ResourcesCompat.getColor(holder.itemView.context.resources, android.R.color.tab_indicator_text, null))
-                holder.binding.headerValue.setOnClickListener(null)
+        holder.itemView.setOnLongClickListener {
+            val clip = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+            clip?.setPrimaryClip(ClipData.newPlainText(header.name, header.value))
+            activity?.let { Toast.makeText(it, "已复制到剪贴板", Toast.LENGTH_SHORT).show() }
+            true
+        }
+
+        if (header.link != null && activity != null) {
+            holder.binding.headerValue.paintFlags = holder.binding.headerValue.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            holder.binding.headerValue.setTextColor(ResourcesCompat.getColor(activity.resources, R.color.colorAccent, null))
+            holder.binding.headerValue.setOnClickListener {
+                activity.startActivity(MovieListActivity.newIntent(activity, "${header.name} ${header.value}", header.link!!))
             }
-            if (first) {
-                ViewUtil.alignIconToView(icon, holder.binding.headerName)
-                first = false
-            }
+        } else {
+            holder.binding.headerValue.paintFlags = holder.binding.headerValue.paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv()
+            holder.binding.headerValue.setTextColor(ResourcesCompat.getColor(holder.itemView.context.resources, android.R.color.tab_indicator_text, null))
+            holder.binding.headerValue.setOnClickListener(null)
+        }
+        if (first) {
+            ViewUtil.alignIconToView(icon, holder.binding.headerName)
+            first = false
         }
     }
 

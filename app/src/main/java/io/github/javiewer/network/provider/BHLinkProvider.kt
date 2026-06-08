@@ -50,6 +50,6 @@ class BHLinkProvider : DownloadLinkProvider() {
         if (!font.isNullOrEmpty()) return font
         val h2 = e.getElementsByTag("h2").first()?.text() ?: return ""
         val spaceIdx = h2.indexOf(" ")
-        return if (spaceIdx >= 0) h2.substring(spaceIdx) else h2
+        return if (spaceIdx >= 0) h2.substring(spaceIdx + 1) else h2
     }
 }

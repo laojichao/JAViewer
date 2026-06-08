@@ -24,7 +24,6 @@ object ViewUtil {
      * @param icon 要对齐的图标视图
      * @param view 目标对齐视图
      */
-    @Suppress("DEPRECATION")
     @JvmStatic
     fun alignIconToView(icon: View, view: View) {
         view.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {

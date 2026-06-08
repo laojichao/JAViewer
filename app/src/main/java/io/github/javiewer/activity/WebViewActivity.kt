@@ -2,12 +2,12 @@ package io.github.javiewer.activity
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.CookieManager
+import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -80,15 +80,14 @@ class WebViewActivity : SecureActivity() {
         setSupportActionBar(binding.toolbar)
 
         val cookieManager = CookieManager.getInstance()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.setAcceptThirdPartyCookies(binding.webView, true)
-        }
+        cookieManager.setAcceptThirdPartyCookies(binding.webView, true)
 
         binding.webView.settings.javaScriptEnabled = true
         binding.webView.setOnTouchListener { _, _ -> locked }
 
         binding.webView.webViewClient = object : WebViewClient() {
-            override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse? {
+            override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+                val url = request.url.toString()
                 if (url.contains("?hash=")) {
                     val cookie = cookieManager.getCookie(url)
                     val request = Request.Builder()
@@ -116,7 +115,7 @@ class WebViewActivity : SecureActivity() {
                         }
                     })
                 }
-                return super.shouldInterceptRequest(view, url)
+                return super.shouldInterceptRequest(view, request)
             }
         }
 
@@ -165,8 +164,7 @@ class WebViewActivity : SecureActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        @Suppress("DEPRECATION")
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 }

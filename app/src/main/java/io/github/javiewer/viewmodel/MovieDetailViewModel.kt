@@ -48,8 +48,11 @@ class MovieDetailViewModel @Inject constructor(
             _detail.value = UiState.Loading
             try {
                 val detail = movieRepository.getMovieDetail(link)
-                detail.headers.add(0, Header.create("影片名", movieTitle, null))
-                _detail.value = UiState.Success(detail)
+                // Create a copy with the title header prepended to avoid mutating shared state
+                val headersWithTitle = mutableListOf(Header.create("影片名", movieTitle, null))
+                headersWithTitle.addAll(detail.headers)
+                val detailWithTitle = detail.copy(headers = headersWithTitle)
+                _detail.value = UiState.Success(detailWithTitle)
             } catch (e: Exception) {
                 _detail.value = UiState.Error(e.message ?: "Unknown error")
             }

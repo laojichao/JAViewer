@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
  * RecyclerView.Adapter 的泛型基类，封装列表数据管理和通知逻辑。
  *
  * @param I 列表项数据类型
- * @param @param VH ViewHolder 类型
+ * @param VH ViewHolder 类型
  * @property items 列表数据源
  */
 abstract class ItemAdapter<I, VH : RecyclerView.ViewHolder>(private val items: MutableList<I>) : RecyclerView.Adapter<VH>() {

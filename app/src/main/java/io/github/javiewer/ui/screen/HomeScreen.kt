@@ -31,11 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.javiewer.adapter.item.Movie
 import io.github.javiewer.ui.component.MovieCard
-import io.github.javiewer.util.UiState
 import io.github.javiewer.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
@@ -75,14 +70,14 @@ fun HomeScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val currentTab by viewModel.currentTab.collectAsState()
 
-    val tabs = listOf("主页", "已发布", "热门", "女优", "类别")
+    val tabs = listOf("主页", "已发布", "热门", "女优")
     val drawerItems = listOf(
         "主页" to { viewModel.loadTab(0) },
         "收藏夹" to { onFavoritesClick() },
         "已发布" to { viewModel.loadTab(1) },
         "热门" to { viewModel.loadTab(2) },
         "女优" to { viewModel.loadTab(3) },
-        "类别" to { viewModel.loadTab(4) }
+        "类别" to { Toast.makeText(context, "类别功能暂未迁移至 Compose 版本", Toast.LENGTH_SHORT).show() }
     )
 
     ModalNavigationDrawer(

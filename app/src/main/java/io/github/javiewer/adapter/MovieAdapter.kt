@@ -35,7 +35,6 @@ open class MovieAdapter(
         return ViewHolder(binding)
     }
 
-    @Suppress("DEPRECATION")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val movie = getItems()[position]
         holder.bind(movie)

@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 val Primary = Color(0xFFFBBC05)
 
 /** 主色调暗色变体 */
-val PrimaryDark = Color(0xFFFFE7F8)
+val PrimaryDark = Color(0xFFC29E00)
 
 /** 强调色（蓝色） */
 val Accent = Color(0xFF0091EA)

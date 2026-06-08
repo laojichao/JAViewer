@@ -20,7 +20,7 @@ import io.github.javiewer.view.listener.BasicOnScrollListener
  * 滚动监听器管理等通用逻辑。子类只需配置 LayoutManager、Adapter 和数据加载逻辑。
  *
  * @param I 列表项数据类型
- * @param @param LM LayoutManager 类型
+ * @param LM LayoutManager 类型
  */
 abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment() {
 
@@ -66,7 +66,7 @@ abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment()
     /**
      * 替换列表数据并通知刷新。
      *
-     * @param @param newItems 新的数据列表
+     * @param newItems 新的数据列表
      */
     fun setItems(newItems: ArrayList<I>) {
         items.clear()
@@ -88,10 +88,11 @@ abstract class RecyclerFragment<I, LM : RecyclerView.LayoutManager> : Fragment()
             ContextCompat.getColor(requireContext(), R.color.googleYellow)
         )
         if (savedInstanceState != null) {
-            @Suppress("DEPRECATION")
-            getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("LayoutManagerState"))
-            @Suppress("UNCHECKED_CAST", "DEPRECATION")
-            val items = savedInstanceState.getParcelableArrayList<android.os.Parcelable>("Items") as? ArrayList<I>
+            getLayoutManager().onRestoreInstanceState(
+                androidx.core.os.BundleCompat.getParcelable(savedInstanceState, "LayoutManagerState", android.os.Parcelable::class.java)
+            )
+            @Suppress("UNCHECKED_CAST")
+            val items = androidx.core.os.BundleCompat.getParcelableArrayList(savedInstanceState, "Items", android.os.Parcelable::class.java) as? ArrayList<I>
             if (items != null) setItems(items)
             getOnScrollListener()?.restoreState(savedInstanceState.getBundle("ScrollListenerState") ?: Bundle())
         }

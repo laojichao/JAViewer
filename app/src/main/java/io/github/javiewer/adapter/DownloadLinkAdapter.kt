@@ -1,7 +1,6 @@
 package io.github.javiewer.adapter
 
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -9,6 +8,9 @@ import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -40,20 +42,29 @@ class DownloadLinkAdapter(
         return ViewHolder(binding)
     }
 
-    @Suppress("DEPRECATION")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val link = getItems()[position]
         holder.bind(link)
         holder.binding.layoutDownload.setOnClickListener {
             if (!link.hasMagnetLink()) {
                 val act = activity ?: return@setOnClickListener
-                val dialog = ProgressDialog(act).apply {
-                    setTitle("请稍后")
-                    setMessage("正在获取磁力链接")
-                    setIndeterminate(false)
-                    setCancelable(false)
-                    show()
+                val density = act.resources.displayMetrics.density
+                val padding = (20 * density).toInt()
+                val layout = LinearLayout(act).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding(padding, padding, padding, padding)
                 }
+                layout.addView(ProgressBar(act).apply { isIndeterminate = true })
+                layout.addView(TextView(act).apply {
+                    text = "正在获取磁力链接"
+                    setPadding((16 * density).toInt(), 0, 0, 0)
+                })
+                val dialog = AlertDialog.Builder(act)
+                    .setTitle("请稍后")
+                    .setView(layout)
+                    .setCancelable(false)
+                    .show()
                 val linkUrl = link.link ?: return@setOnClickListener
                 val scope = (act as? AppCompatActivity)?.lifecycleScope ?: return@setOnClickListener
                 scope.launch {

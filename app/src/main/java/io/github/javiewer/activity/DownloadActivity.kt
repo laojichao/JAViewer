@@ -50,6 +50,7 @@ class DownloadActivity : SecureActivity() {
         binding.downloadViewPager.adapter = adapter
         binding.downloadTabs.setupWithViewPager(binding.downloadViewPager)
 
+        if (savedInstanceState != null) return  // Don't re-increment on config change
         var downloadCounter = viewModel.getDownloadCounter()
         if (downloadCounter == -1L) return
         downloadCounter++
@@ -75,8 +76,7 @@ class DownloadActivity : SecureActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            @Suppress("DEPRECATION")
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
             return true
         }
         return super.onOptionsItemSelected(item)

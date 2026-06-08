@@ -11,11 +11,6 @@ import dagger.hilt.android.HiltAndroidApp
 import io.github.javiewer.adapter.item.DataSource
 import io.github.javiewer.network.BasicService
 import kotlinx.serialization.json.Json
-import okhttp3.Cookie
-import okhttp3.CookieJar
-import okhttp3.HttpUrl
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
 import java.io.File
 import java.security.MessageDigest
 
@@ -58,31 +53,19 @@ class JAViewer : Application() {
         @Volatile
         var SERVICE: BasicService? = null
 
-        /** 域名重写映射表（旧域名 -> 当前域名） */
+        /** 域名重写映射表（旧域名 -> 当前域名），由 [io.github.javiewer.repository.DataSourceRepository] 管理 */
         @JvmField
         val hostReplacements: MutableMap<String, String> = java.util.concurrent.ConcurrentHashMap()
 
-        /** 共享 OkHttpClient 实例，配置了域名重写拦截器和 Cookie 管理 */
+        /** 共享 OkHttpClient 实例，配置了 User-Agent 头，供网络 API 服务使用 */
         @JvmField
-        val httpClient: OkHttpClient = OkHttpClient.Builder()
-            .addInterceptor(Interceptor { chain ->
+        val httpClient: okhttp3.OkHttpClient = okhttp3.OkHttpClient.Builder()
+            .addInterceptor(okhttp3.Interceptor { chain ->
                 val original = chain.request()
                 val request = original.newBuilder()
-                    .url(replaceUrl(original.url))
                     .header("User-Agent", USER_AGENT)
                     .build()
                 chain.proceed(request)
-            })
-            .cookieJar(object : CookieJar {
-                private val cookieStore = java.util.concurrent.ConcurrentHashMap<HttpUrl, List<Cookie>>()
-
-                override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                    cookieStore[url] = cookies
-                }
-
-                override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                    return cookieStore[url] ?: emptyList()
-                }
             })
             .build()
 
@@ -97,6 +80,8 @@ class JAViewer : Application() {
         /**
          * 重建 [BasicService] 实例，基于当前数据源的 URL。
          * 数据源切换后需调用此方法。
+         *
+         * 注意：此方法为旧代码兼容层，新代码应通过 Hilt 注入 [BasicService]。
          */
         @JvmStatic
         fun recreateService() {
@@ -126,20 +111,6 @@ class JAViewer : Application() {
             }
             dir.mkdirs()
             return dir
-        }
-
-        /**
-         * 域名重写：如果 URL 的主机名在 [hostReplacements] 映射中，
-         * 则替换为目标主机名。
-         *
-         * @param url 原始 URL
-         * @return 重写后的 URL
-         */
-        @JvmStatic
-        fun replaceUrl(url: HttpUrl): HttpUrl {
-            val host = url.host
-            val replacement = hostReplacements[host] ?: return url
-            return url.newBuilder().host(replacement).build()
         }
 
         /** kotlinx.serialization JSON 实例 */

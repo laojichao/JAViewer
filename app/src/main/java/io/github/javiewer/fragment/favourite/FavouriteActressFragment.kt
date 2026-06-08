@@ -7,6 +7,7 @@ import io.github.javiewer.adapter.ItemAdapter
 import io.github.javiewer.adapter.item.Actress
 import io.github.javiewer.repository.ConfigRepository
 import io.github.javiewer.view.decoration.ActressItemDecoration
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 /**
@@ -19,8 +20,12 @@ class FavouriteActressFragment : FavouriteFragment<Actress>() {
 
     @Inject lateinit var configRepository: ConfigRepository
 
-    override fun adapter(): ItemAdapter<*, *> {
-        return ActressAdapter(configRepository.getStarredActresses(), activity, configRepository)
+    override suspend fun loadItems(): MutableList<Actress> {
+        return ArrayList(configRepository.getStarredActressesFlow().first())
+    }
+
+    override fun createAdapter(items: MutableList<Actress>): ItemAdapter<Actress, *> {
+        return ActressAdapter(items, activity, configRepository)
     }
 
     override fun decoration(): RecyclerView.ItemDecoration = ActressItemDecoration()

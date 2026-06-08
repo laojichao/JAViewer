@@ -84,8 +84,8 @@ class StartActivity : AppCompatActivity() {
         JAViewer.hostReplacements.putAll(dataSourceRepository.getHostReplacements())
 
         val currentVersion = try {
-            @Suppress("DEPRECATION")
-            packageManager.getPackageInfo(packageName, 0).versionCode
+            val info = packageManager.getPackageInfo(packageName, 0)
+            androidx.core.content.pm.PackageInfoCompat.getLongVersionCode(info).toInt()
         } catch (_: PackageManager.NameNotFoundException) {
             throw RuntimeException("Hacked???")
         }

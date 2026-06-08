@@ -126,7 +126,7 @@ abstract class BasicOnScrollListener<I>(
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
         if (!isLoading && !isEnd() && canLoadMore(recyclerView)) {
-            loading = true
+            isLoading = true
             onLoad(System.currentTimeMillis().also { token = it })
         }
     }

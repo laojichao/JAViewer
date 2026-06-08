@@ -2,7 +2,6 @@ package io.github.javiewer.activity
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -102,6 +101,12 @@ class MainActivity : SecureActivity() {
         setSupportActionBar(binding.appBarMain.toolbar)
         initFragments()
         buildDrawer()
+
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                appExit()
+            }
+        })
     }
 
     /** 构建 MaterialDrawer 导航抽屉 */
@@ -143,10 +148,8 @@ class MainActivity : SecureActivity() {
             })
             .build()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val guideline = result.header.findViewById<Guideline>(R.id.guideline_status_bar)
-            guideline.setGuidelineBegin(UIUtils.getStatusBarHeight(this, true))
-        }
+        val guideline = result.header.findViewById<Guideline>(R.id.guideline_status_bar)
+        guideline.setGuidelineBegin(UIUtils.getStatusBarHeight(this, true))
 
         mDrawer = result
 
@@ -198,9 +201,7 @@ class MainActivity : SecureActivity() {
         transaction.show(fragment)
         transaction.commit()
         currentFragment = fragment
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.appBarMain.appBar.elevation = if (fragment is ExtendedAppBarFragment) 0f else 4f * resources.displayMetrics.density
-        }
+        binding.appBarMain.appBar.elevation = if (fragment is ExtendedAppBarFragment) 0f else 4f * resources.displayMetrics.density
     }
 
     /** 根据 ID 切换 Fragment */
@@ -213,11 +214,6 @@ class MainActivity : SecureActivity() {
         outState.putString("CurrentFragment", currentFragment?.javaClass?.simpleName)
         outState.putInt("SelectedDrawerItemId", idOfDrawerItem.toInt())
         super.onSaveInstanceState(outState)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        appExit()
     }
 
     /** 处理返回键：先关抽屉、再关搜索、双击退出 */

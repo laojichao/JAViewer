@@ -14,6 +14,9 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
@@ -48,16 +51,10 @@ class GalleryActivity : SecureActivity() {
     private val fadeOut = AlphaAnimation(1f, 0f).apply { duration = 150 }
 
     private val hidePart2Runnable = Runnable {
-        @SuppressLint("InlinedApi")
-        fun run() {
-            binding.galleryPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
-        run()
     }
 
     private val showPart2Runnable = Runnable {
@@ -93,7 +90,6 @@ class GalleryActivity : SecureActivity() {
         hidePart2Runnable.run()
 
         val bundle = intent.extras ?: run { finish(); return }
-        @Suppress("UNCHECKED_CAST")
         imageUrls = bundle.getStringArray("urls") ?: emptyArray()
         binding.galleryPager.adapter = ImageAdapter(this, imageUrls)
         binding.galleryPager.currentItem = bundle.getInt("position")
@@ -103,12 +99,7 @@ class GalleryActivity : SecureActivity() {
             }
         })
         updateIndicator()
-        @Suppress("DEPRECATION")
-        movie = if (android.os.Build.VERSION.SDK_INT >= 33) {
-            bundle.getParcelable("movie", Movie::class.java)
-        } else {
-            bundle.getParcelable("movie")
-        }
+        movie = androidx.core.os.BundleCompat.getParcelable(bundle, "movie", Movie::class.java)
     }
 
     /** 更新页码指示器并重置自动隐藏计时器 */
@@ -135,9 +126,8 @@ class GalleryActivity : SecureActivity() {
     }
 
     /** 显示工具栏 */
-    @SuppressLint("InlinedApi")
     private fun show() {
-        binding.galleryPager.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        WindowCompat.setDecorFitsSystemWindows(window, true)
         mVisible = true
         handler.removeCallbacks(hidePart2Runnable)
         handler.postDelayed(showPart2Runnable, 300)
@@ -199,8 +189,7 @@ class GalleryActivity : SecureActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        @Suppress("DEPRECATION")
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 

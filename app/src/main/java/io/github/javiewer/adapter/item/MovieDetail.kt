@@ -26,7 +26,7 @@ data class MovieDetail(
      * 可选地包含关联链接（如制作商链接），通过继承的 [Linkable.link] 字段存储。
      *
      * @property name 信息名称（如 "日期", "时长", "制作商"）
-     * @property property value 信息值
+     * @property value 信息值
      */
     data class Header(
         var name: String = "",

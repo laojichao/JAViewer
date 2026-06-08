@@ -11,7 +11,7 @@ import kotlinx.parcelize.Parcelize
  * @property title 影片标题
  * @property code 影片编号（如 "ABP-123"），用作唯一标识
  * @property coverUrl 封面图片 URL
- * @property title 发布日期字符串
+ * @property date 发布日期字符串
  * @property hot 是否为热门影片
  * @property link 影片详情页 URL
  */

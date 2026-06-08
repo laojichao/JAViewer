@@ -7,9 +7,12 @@ import android.content.Context
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import io.github.javiewer.activity.FavouriteActivity
 import io.github.javiewer.adapter.item.Actress
 import io.github.javiewer.repository.ConfigRepository
+import kotlinx.coroutines.launch
 
 /**
  * 女优长按监听器，弹出上下文菜单支持复制名称和收藏/取消收藏。
@@ -25,11 +28,11 @@ class ActressLongClickListener(
 ) : View.OnLongClickListener {
 
     override fun onLongClick(v: View): Boolean {
-        val actresses = configRepository.getStarredActresses()
-        val contain = actresses.contains(actress)
-        val items = if (contain) arrayOf("复制女优名字", "取消收藏") else arrayOf("复制女优名字", "收藏")
-
         val act = activity ?: return true
+
+        val isStarred = configRepository.isActressStarredSync(actress)
+        val items = if (isStarred) arrayOf("复制女优名字", "取消收藏") else arrayOf("复制女优名字", "收藏")
+
         AlertDialog.Builder(act)
             .setTitle(actress.name)
             .setItems(items) { _, which ->
@@ -40,15 +43,12 @@ class ActressLongClickListener(
                         Toast.makeText(act, "已复制到剪贴板", Toast.LENGTH_SHORT).show()
                     }
                     1 -> {
-                        if (contain) {
-                            actresses.remove(actress)
-                            Toast.makeText(act, "已取消收藏", Toast.LENGTH_SHORT).show()
-                        } else {
-                            actresses.add(0, actress)
-                            Toast.makeText(act, "已收藏", Toast.LENGTH_SHORT).show()
+                        val scope = (act as? AppCompatActivity)?.lifecycleScope ?: return@setItems
+                        scope.launch {
+                            val nowStarred = configRepository.toggleStarActress(actress)
+                            Toast.makeText(act, if (nowStarred) "已收藏" else "已取消收藏", Toast.LENGTH_SHORT).show()
+                            FavouriteActivity.update()
                         }
-                        configRepository.saveConfigurations()
-                        FavouriteActivity.update()
                     }
                 }
             }

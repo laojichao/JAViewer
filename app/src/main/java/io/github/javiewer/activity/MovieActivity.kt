@@ -2,12 +2,16 @@ package io.github.javiewer.activity
 
 import android.animation.AnimatorListenerAdapter
 import android.animation.Animator
-import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -37,6 +41,7 @@ import io.github.javiewer.repository.ConfigRepository
 import io.github.javiewer.util.UiState
 import io.github.javiewer.view.ViewUtil
 import io.github.javiewer.viewmodel.MovieDetailViewModel
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -62,19 +67,15 @@ class MovieActivity : SecureActivity() {
     lateinit var movie: Movie
     private var video: AvgleSearchResult.Response.Video? = null
     private var mStarButton: MenuItem? = null
-    private var progressDialog: ProgressDialog? = null
+    private var progressDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMovieBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        @Suppress("DEPRECATION")
-        movie = if (android.os.Build.VERSION.SDK_INT >= 33) {
-            intent.getParcelableExtra("movie", Movie::class.java)
-        } else {
-            intent.getParcelableExtra("movie")
-        } ?: run { finish(); return }
+        movie = androidx.core.content.IntentCompat.getParcelableExtra(intent, "movie", Movie::class.java)
+            ?: run { finish(); return }
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -108,7 +109,7 @@ class MovieActivity : SecureActivity() {
                     }
                 }
                 launch {
-                    viewModel.starred.collect { isStarred ->
+                    viewModel.starred.drop(1).collect { isStarred ->
                         if (isStarred) {
                             mStarButton?.setIcon(R.drawable.ic_menu_star)
                             Snackbar.make(binding.movieContent.root, "已收藏", Snackbar.LENGTH_LONG).show()
@@ -125,7 +126,12 @@ class MovieActivity : SecureActivity() {
         }
 
         // Load detail
-        val movieLink = movie.link ?: return
+        val movieLink = movie.link
+        if (movieLink.isNullOrEmpty()) {
+            Toast.makeText(this, "影片链接无效", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
         viewModel.loadDetail(movieLink, movie.title)
     }
 
@@ -204,8 +210,7 @@ class MovieActivity : SecureActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            @Suppress("DEPRECATION")
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
             return true
         }
         return super.onOptionsItemSelected(item)
@@ -258,7 +263,11 @@ class MovieActivity : SecureActivity() {
         for (i in 0 until contentView.childCount) {
             scrollViewHeight += contentView.getChildAt(i).height
         }
-        val result = Bitmap.createBitmap(contentView.width, imageHeight + scrollViewHeight, Bitmap.Config.ARGB_8888)
+        val totalHeight = imageHeight + scrollViewHeight
+        if (contentView.width <= 0 || totalHeight <= 0) {
+            throw IllegalStateException("View not laid out yet")
+        }
+        val result = Bitmap.createBitmap(contentView.width, totalHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
         canvas.drawColor(Color.parseColor("#FAFAFA"))
 
@@ -283,7 +292,7 @@ class MovieActivity : SecureActivity() {
         }
         if (isFinishing || isDestroyed) return
         if (progressDialog?.isShowing == true) return
-        progressDialog = ProgressDialog.show(this, "请稍后", "正在搜索该影片的预览视频", true, false)
+        progressDialog = showProgressDialog("正在搜索该影片的预览视频")
         lifecycleScope.launch {
             try {
                 val result = PSVS.INSTANCE.search(movie.code)
@@ -310,21 +319,22 @@ class MovieActivity : SecureActivity() {
 
     /** 点击播放按钮，搜索并播放在线视频 */
     fun onPlay() {
-        val ts = (System.currentTimeMillis() / 1000).toString()
         if (video != null) {
+            val ts = (System.currentTimeMillis() / 1000).toString()
             val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}"
             VideoPlayerActivity.start(this, url, movie.title)
             return
         }
         if (isFinishing || isDestroyed) return
         if (progressDialog?.isShowing == true) return
-        progressDialog = ProgressDialog.show(this, "请稍后", "正在搜索该影片的在线视频源", true, false)
+        progressDialog = showProgressDialog("正在搜索该影片的在线视频源")
         lifecycleScope.launch {
             try {
                 val result = PSVS.INSTANCE.search(movie.code)
                 if (result.success && result.response.videos.isNotEmpty()) {
                     video = result.response.videos[0]
                     if (!isFinishing && !isDestroyed) {
+                        val ts = (System.currentTimeMillis() / 1000).toString()
                         val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}"
                         VideoPlayerActivity.start(this@MovieActivity, url, movie.title)
                     }
@@ -341,6 +351,28 @@ class MovieActivity : SecureActivity() {
             }
             dismissProgress()
         }
+    }
+
+    /** 显示进度对话框 */
+    private fun showProgressDialog(message: String): AlertDialog {
+        val padding = (20 * resources.displayMetrics.density).toInt()
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            setPadding(padding, padding, padding, padding)
+        }
+        layout.addView(ProgressBar(this).apply {
+            isIndeterminate = true
+        })
+        layout.addView(TextView(this).apply {
+            text = message
+            setPadding((16 * resources.displayMetrics.density).toInt(), 0, 0, 0)
+        })
+        return AlertDialog.Builder(this)
+            .setTitle("请稍后")
+            .setView(layout)
+            .setCancelable(false)
+            .show()
     }
 
     /** 关闭进度对话框 */

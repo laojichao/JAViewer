@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -39,16 +38,8 @@ class Media3PlayerImpl(private val context: Context) {
         return player ?: createPlayer().also { player = it }
     }
 
-    /** 创建 ExoPlayer 实例，配置 HTTP 数据源 */
+    /** 创建 ExoPlayer 实例 */
     private fun createPlayer(): ExoPlayer {
-        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
-            .setUserAgent(JAViewer.USER_AGENT)
-            .setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
-            .setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
-            .setAllowCrossProtocolRedirects(true)
-
-        val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
-
         return ExoPlayer.Builder(context)
             .build()
             .apply {

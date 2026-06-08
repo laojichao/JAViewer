@@ -7,6 +7,7 @@ import io.github.javiewer.adapter.item.Actress
 import io.github.javiewer.adapter.item.Movie
 import io.github.javiewer.repository.ActressRepository
 import io.github.javiewer.repository.MovieRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ class HomeViewModel @Inject constructor(
 
     private var currentPage = 0
     private var isEnd = false
+    private var loadJob: Job? = null
 
     init {
         loadTab(0)
@@ -56,6 +58,8 @@ class HomeViewModel @Inject constructor(
      * @param tab 标签页索引：0=主页, 1=已发布, 2=热门, 3=女优
      */
     fun loadTab(tab: Int) {
+        loadJob?.cancel()
+        _isLoading.value = false
         _currentTab.value = tab
         currentPage = 0
         isEnd = false
@@ -66,6 +70,8 @@ class HomeViewModel @Inject constructor(
 
     /** 下拉刷新，重置分页状态并重新加载 */
     fun refresh() {
+        loadJob?.cancel()
+        _isLoading.value = false
         currentPage = 0
         isEnd = false
         _movies.value = emptyList()
@@ -78,7 +84,7 @@ class HomeViewModel @Inject constructor(
         if (_isLoading.value || isEnd) return
         _isLoading.value = true
 
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             try {
                 val page = currentPage + 1
                 when (_currentTab.value) {
