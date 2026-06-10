@@ -104,13 +104,13 @@ abstract class BasicOnScrollListener<I>(
                         currentPage++
                     }
                     setLoading(false)
-                    getRefreshLayout().isRefreshing = false
+                    if (!cancelled) getRefreshLayout().isRefreshing = false
                 }
             } catch (e: Throwable) {
                 if (cancelled) return@launch
                 if (requestToken == token && page == currentPage) {
                     setLoading(false)
-                    getRefreshLayout().isRefreshing = false
+                    if (!cancelled) getRefreshLayout().isRefreshing = false
                     onExceptionCaught(e)
                 }
             }
@@ -140,7 +140,10 @@ abstract class BasicOnScrollListener<I>(
         val visibleCount = recyclerView.childCount
         val totalCount = lm.itemCount
         val firstVisible = when (lm) {
-            is StaggeredGridLayoutManager -> lm.findFirstVisibleItemPositions(null)[0]
+            is StaggeredGridLayoutManager -> {
+                val positions = lm.findFirstVisibleItemPositions(null)
+                if (positions.isEmpty()) return false else positions[0]
+            }
             is GridLayoutManager -> lm.findFirstVisibleItemPosition()
             is LinearLayoutManager -> lm.findFirstVisibleItemPosition()
             else -> 0

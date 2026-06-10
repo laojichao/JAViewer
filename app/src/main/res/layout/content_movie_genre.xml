@@ -18,8 +18,8 @@
         android:orientation="vertical"
         android:paddingLeft="72dp">
 
-        <com.wefika.flowlayout.FlowLayout
-            android:id="@+id/genre_flow_layout"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/genre_chip_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -33,4 +33,3 @@
     </LinearLayout>
 
 </RelativeLayout>
-

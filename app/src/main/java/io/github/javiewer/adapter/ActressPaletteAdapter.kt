@@ -71,7 +71,9 @@ class ActressPaletteAdapter(
                             holder.binding.cardActressPalette.setCardBackgroundColor(swatch.rgb)
                             holder.binding.actressPaletteName.setTextColor(swatch.bodyTextColor)
                         }
-                    } catch (_: Exception) {}
+                    } catch (e: Exception) {
+                        android.util.Log.e("ActressPaletteAdapter", "Palette generation failed", e)
+                    }
                 }
 
                 override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {}

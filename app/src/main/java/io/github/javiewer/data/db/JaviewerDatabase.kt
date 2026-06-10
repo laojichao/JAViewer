@@ -10,12 +10,13 @@ import io.github.javiewer.data.db.entity.FavoriteMovieEntity
 /**
  * Room 数据库定义，包含收藏影片和收藏女优两张表。
  *
- * 版本号为 1，不导出 Schema。通过 Hilt 依赖注入提供单例。
+ * 版本号为 1。通过 Hilt 依赖注入提供单例。
+ * 导出 Schema 到 `app/schemas/` 目录以便未来迁移测试。
  */
 @Database(
     entities = [FavoriteMovieEntity::class, FavoriteActressEntity::class],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class JaviewerDatabase : RoomDatabase() {
     /** 获取收藏影片 DAO */

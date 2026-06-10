@@ -99,7 +99,7 @@ class MovieActivity : SecureActivity() {
                             is UiState.Loading -> { /* already showing progress bar */ }
                             is UiState.Success -> {
                                 displayInfo(state.data)
-                                Glide.with(applicationContext).load(state.data.coverUrl).into(binding.toolbarLayoutBackground)
+                                Glide.with(this@MovieActivity).load(state.data.coverUrl).into(binding.toolbarLayoutBackground)
                             }
                             is UiState.Error -> {
                                 Toast.makeText(this@MovieActivity, state.message, Toast.LENGTH_SHORT).show()
@@ -176,16 +176,16 @@ class MovieActivity : SecureActivity() {
         }
 
         // Genre
-        genreBinding.genreFlowLayout.removeAllViews()
+        genreBinding.genreChipGroup.removeAllViews()
         if (detail.genres.isEmpty()) {
-            genreBinding.genreFlowLayout.visibility = View.GONE
+            genreBinding.genreChipGroup.visibility = View.GONE
             genreBinding.genreEmptyText.visibility = View.VISIBLE
             ViewUtil.alignIconToView(genreBinding.movieIconGenre, genreBinding.genreEmptyText)
         } else {
-            genreBinding.genreFlowLayout.visibility = View.VISIBLE
+            genreBinding.genreChipGroup.visibility = View.VISIBLE
             genreBinding.genreEmptyText.visibility = View.GONE
             for ((i, genre) in detail.genres.withIndex()) {
-                val view = layoutInflater.inflate(R.layout.chip_genre, genreBinding.genreFlowLayout, false)
+                val view = layoutInflater.inflate(R.layout.chip_genre, genreBinding.genreChipGroup, false)
                 val chip = view.findViewById<Chip>(R.id.chip_genre)
                 chip.setOnClickListener {
                     if (genre.link != null) {
@@ -193,7 +193,7 @@ class MovieActivity : SecureActivity() {
                     }
                 }
                 chip.text = genre.name
-                genreBinding.genreFlowLayout.addView(view)
+                genreBinding.genreChipGroup.addView(view)
                 if (i == 0) ViewUtil.alignIconToView(genreBinding.movieIconGenre, view)
             }
         }
@@ -288,12 +288,14 @@ class MovieActivity : SecureActivity() {
 
     /** 点击预览按钮，搜索并播放预览视频 */
     fun onClickPreview() {
-        if (video != null) {
-            VideoPlayerActivity.start(this, video!!.preview_video_url, movie.title)
+        val v = video
+        if (v != null) {
+            VideoPlayerActivity.start(this, v.preview_video_url, movie.title)
             return
         }
         searchAndPlay("正在搜索该影片的预览视频") {
-            VideoPlayerActivity.start(this@MovieActivity, video!!.preview_video_url, movie.title)
+            val v2 = video ?: return@searchAndPlay
+            VideoPlayerActivity.start(this@MovieActivity, v2.preview_video_url, movie.title)
             Toast.makeText(this@MovieActivity, "提示：预览视频可能需要科学上网", Toast.LENGTH_LONG).show()
         }
     }
@@ -311,8 +313,9 @@ class MovieActivity : SecureActivity() {
 
     /** 构建在线视频播放 URL 并启动播放器 */
     private fun playOnlineVideo() {
+        val v = video ?: return
         val ts = (System.currentTimeMillis() / 1000).toString()
-        val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}"
+        val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${v.vid}&ts=$ts&sign=${JAViewer.b(v.vid, ts)}"
         VideoPlayerActivity.start(this, url, movie.title)
     }
 

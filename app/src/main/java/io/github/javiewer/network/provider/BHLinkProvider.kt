@@ -1,5 +1,6 @@
 package io.github.javiewer.network.provider
 
+import android.util.Log
 import io.github.javiewer.adapter.item.DownloadLink
 import io.github.javiewer.adapter.item.MagnetLink
 import io.github.javiewer.network.BH
@@ -34,7 +35,8 @@ class BHLinkProvider : DownloadLinkProvider() {
                         magnet
                     )
                 )
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("BHLinkProvider", "Failed to parse download link", e)
             }
         }
         return links

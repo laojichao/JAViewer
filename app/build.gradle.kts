@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     id("kotlin-parcelize")
-    id("kotlin-kapt")
+    alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
 }
 
@@ -13,15 +13,15 @@ configurations.all {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 35
     namespace = "io.github.javiewer"
 
     defaultConfig {
         applicationId = "io.github.javiewer"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 27
-        versionName = "3.0.0-kotlin"
+        targetSdk = 35
+        versionCode = 28
+        versionName = "3.1.0-kotlin"
     }
 
     buildTypes {
@@ -46,6 +46,10 @@ android {
     buildFeatures {
         viewBinding = true
         compose = true
+    }
+
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
     }
 }
 
@@ -75,7 +79,7 @@ dependencies {
     // Room
     implementation(libs.roomRuntime)
     implementation(libs.roomKtx)
-    kapt(libs.roomCompiler)
+    ksp(libs.roomCompiler)
 
     // DataStore
     implementation(libs.datastorePreferences)
@@ -90,21 +94,19 @@ dependencies {
     implementation(libs.navigationCompose)
     implementation(libs.lifecycleRuntimeCompose)
     implementation(libs.lifecycleViewmodelCompose)
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.hiltNavigationCompose)
     debugImplementation(libs.composeUiTooling)
 
     // Hilt
     implementation(libs.hiltAndroid)
-    kapt(libs.hiltCompiler)
+    ksp(libs.hiltCompiler)
 
     // View (legacy - kept for XML screens still in use)
     implementation(libs.materialdrawer)
-    implementation(libs.ahbottomnavigation)
-    implementation(libs.flowlayout)
 
     // Glide
     implementation(libs.glide)
-    kapt(libs.glideCompiler)
+    ksp(libs.glideCompiler)
 
     // Network
     implementation(libs.retrofit)
@@ -113,15 +115,17 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.kotlinxSerializationJson)
     implementation(libs.jsoup)
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.okhttp)
 
     // Player
     implementation(libs.media3Exoplayer)
     implementation(libs.media3Ui)
     implementation(libs.media3Hls)
 
-    // Crash reporting
-    implementation(libs.customactivityoncrash)
+    // Crash reporting (exclude old Support Library, uses AndroidX via Jetifier-free path)
+    implementation(libs.customactivityoncrash) {
+        exclude(group = "com.android.support")
+    }
 
     // Test
     testImplementation(libs.junit)

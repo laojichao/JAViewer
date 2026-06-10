@@ -1,5 +1,6 @@
 package io.github.javiewer
 
+import android.util.Log
 import com.google.gson.Gson
 import io.github.javiewer.adapter.item.Actress
 import io.github.javiewer.adapter.item.DataSource
@@ -88,17 +89,23 @@ class Configurations {
      * 将当前配置保存到 JSON 文件。
      * 使用 Gson 序列化并通过 FileWriter 写入磁盘。
      * 通过 [synchronized] 保证读取状态的一致性。
+     *
+     * @return true 保存成功，false 保存失败或文件未绑定
      */
-    fun save() {
-        val f = file ?: return
+    fun save(): Boolean {
+        val f = file ?: return false
         synchronized(this) {
-            try {
+            return try {
+                // 确保父目录存在
+                f.parentFile?.mkdirs()
                 FileWriter(f).use { writer ->
                     gson.toJson(this, writer)
                     writer.flush()
                 }
+                true
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "Failed to save configurations to ${f.absolutePath}", e)
+                false
             }
         }
     }
@@ -124,6 +131,8 @@ class Configurations {
     }
 
     companion object {
+        private const val TAG = "Configurations"
+
         /**
          * 从 JSON 文件加载配置，文件不存在或解析失败时返回空配置。
          *
@@ -132,13 +141,18 @@ class Configurations {
          */
         @JvmStatic
         fun load(file: File): Configurations {
+            if (!file.exists()) {
+                Log.d(TAG, "Config file not found, creating new: ${file.absolutePath}")
+                return Configurations().apply { this.file = file }
+            }
             val config: Configurations? = try {
                 FileReader(file).use { reader ->
                     com.google.gson.stream.JsonReader(reader).use { jsonReader ->
                         Gson().fromJson(jsonReader, Configurations::class.java)
                     }
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to parse config file, using defaults", e)
                 null
             }
             return (config ?: Configurations()).apply { this.file = file }

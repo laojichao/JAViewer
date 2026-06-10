@@ -68,10 +68,10 @@ object NetworkModule {
 
     /**
      * 提供 [BasicService] Retrofit 实例。
-     * 基于当前数据源 URL 创建，使用 [provideOkHttpClient] 提供的客户端。
+     * 每次注入时基于当前数据源 URL 创建新实例，确保数据源切换后 URL 正确。
+     * 不使用 @Singleton，因为数据源 URL 可能在运行时变更。
      */
     @Provides
-    @Singleton
     fun provideBasicService(okHttpClient: OkHttpClient): BasicService {
         val link = JAViewer.getDataSource().link ?: "https://avos.pw"
         return retrofit2.Retrofit.Builder()

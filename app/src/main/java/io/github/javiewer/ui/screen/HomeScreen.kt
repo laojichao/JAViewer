@@ -68,6 +68,14 @@ fun HomeScreen(
     val movies by viewModel.movies.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val currentTab by viewModel.currentTab.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    // Show error as Toast
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     val tabs = listOf("主页", "已发布", "热门", "女优")
     val drawerItems = listOf(

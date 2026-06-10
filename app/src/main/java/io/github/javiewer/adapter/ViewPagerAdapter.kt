@@ -9,8 +9,10 @@ import androidx.fragment.app.FragmentPagerAdapter
 /**
  * ViewPager 适配器，管理 Fragment 列表和对应标签标题。
  *
- * 使用已弃用的 [FragmentPagerAdapter]，因 AHBottomNavigationViewPager 与 ViewPager2
- * 不兼容，且此页面正在被 Compose 替代，故保留旧版实现。
+ * 使用已弃用的 [FragmentPagerAdapter]，用于旧版 ViewPager（非 ViewPager2）。
+ * 适用于 [io.github.javiewer.activity.DownloadActivity]、
+ * [io.github.javiewer.fragment.favourite.FavouriteTabsFragment]、
+ * [io.github.javiewer.fragment.genre.GenreTabsFragment]。
  *
  * @param manager FragmentManager
  */

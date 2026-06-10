@@ -3,6 +3,7 @@ package io.github.javiewer.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.net.Uri
 import android.text.TextUtils
 import android.view.View
 import android.webkit.CookieManager
@@ -37,6 +38,36 @@ import java.io.IOException
 class WebViewActivity : SecureActivity() {
 
     companion object {
+        /** 允许加载嵌入式视频的可信域名白名单 */
+        private val ALLOWED_EMBED_DOMAINS = setOf(
+            "javiewer.github.io",
+            "openload.co",
+            "oload.stream",
+            "streamango.com",
+            "verystream.com",
+            "waaw.tv",
+            "hqq.tv",
+            "netu.tv",
+            "playtube.ws",
+            "fcdn.stream",
+            "mystream.to",
+            "femax20.com",
+            "embed.media",
+            "videocloud.co",
+            "cdnvideo.me",
+        )
+
+        private fun isAllowedEmbedUrl(url: String): Boolean {
+            return try {
+                val host = Uri.parse(url).host?.lowercase() ?: return false
+                ALLOWED_EMBED_DOMAINS.any { allowed ->
+                    host == allowed || host.endsWith(".$allowed")
+                }
+            } catch (_: Exception) {
+                false
+            }
+        }
+
         private val httpClient = OkHttpClient.Builder()
             .addInterceptor(Interceptor { chain ->
                 val original = chain.request()
@@ -75,6 +106,12 @@ class WebViewActivity : SecureActivity() {
         setContentView(binding.root)
 
         val embeddedUrl = intent.getStringExtra("embedded_url") ?: ""
+
+        if (embeddedUrl.isEmpty() || !isAllowedEmbedUrl(embeddedUrl)) {
+            Toast.makeText(this, "不允许加载该链接", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         setSupportActionBar(binding.toolbar)
 

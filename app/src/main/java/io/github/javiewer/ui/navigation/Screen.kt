@@ -34,7 +34,7 @@ sealed class Screen(val route: String) {
          * 创建下载页路由。
          * @param keyword 搜索关键词
          */
-        fun createRoute(keyword: String) = "download/$keyword"
+        fun createRoute(keyword: String) = "download/${java.net.URLEncoder.encode(keyword, "UTF-8")}"
     }
 
     /** 影片详情页 */

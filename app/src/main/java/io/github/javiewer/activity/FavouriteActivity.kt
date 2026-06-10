@@ -3,11 +3,10 @@ package io.github.javiewer.activity
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.core.content.ContextCompat
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigation
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.javiewer.R
-import io.github.javiewer.adapter.ViewPagerAdapter
+import io.github.javiewer.adapter.ViewPagerAdapter2
 import io.github.javiewer.databinding.ActivityFavouriteBinding
 import io.github.javiewer.fragment.favourite.FavouriteActressFragment
 import io.github.javiewer.fragment.favourite.FavouriteFragment
@@ -31,17 +30,16 @@ class FavouriteActivity : SecureActivity() {
          */
         @JvmStatic
         fun update() {
-            val activity = sInstance?.get()
-            if (activity != null && activity.mAdapter != null) {
-                for (i in 0 until activity.mAdapter!!.count) {
-                    (activity.mAdapter!!.getItem(i) as? FavouriteFragment<*>)?.update()
-                }
+            val activity = sInstance?.get() ?: return
+            // 通过 FragmentManager 查找已创建的 FavouriteFragment 实例
+            for (fragment in activity.supportFragmentManager.fragments) {
+                (fragment as? FavouriteFragment<*>)?.update()
             }
         }
     }
 
     private lateinit var binding: ActivityFavouriteBinding
-    var mAdapter: ViewPagerAdapter? = null
+    var mAdapter: ViewPagerAdapter2? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,31 +51,34 @@ class FavouriteActivity : SecureActivity() {
         setSupportActionBar(binding.toolbarFav)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        mAdapter = ViewPagerAdapter(supportFragmentManager)
-        binding.favouriteViewPager.adapter = mAdapter
-        binding.favouriteViewPager.setPagingEnabled(true)
-        binding.favouriteViewPager.addOnPageChangeListener(object : androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener() {
-            override fun onPageSelected(position: Int) {
-                binding.bottomNavigation.setCurrentItem(position)
-                binding.bottomNavigation.restoreBottomNavigation()
-            }
-        })
-
+        mAdapter = ViewPagerAdapter2(this)
         mAdapter?.addFragment(FavouriteMovieFragment(), "作品")
         mAdapter?.addFragment(FavouriteActressFragment(), "女优")
-        mAdapter?.notifyDataSetChanged()
 
-        val navigationAdapter = AHBottomNavigationAdapter(this, R.menu.nav_favourite)
-        navigationAdapter.setupWithBottomNavigation(binding.bottomNavigation)
-        binding.bottomNavigation.setTranslucentNavigationEnabled(true)
-        binding.bottomNavigation.setAccentColor(ContextCompat.getColor(this, R.color.colorPrimary))
-        binding.bottomNavigation.titleState = AHBottomNavigation.TitleState.ALWAYS_SHOW
-        binding.bottomNavigation.setOnTabSelectedListener { position, wasSelected ->
-            if (!wasSelected) {
-                binding.favouriteViewPager.currentItem = position
-                true
-            } else false
+        binding.favouriteViewPager.adapter = mAdapter
+
+        // BottomNavigationView 与 ViewPager2 联动
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_fav_movie -> {
+                    binding.favouriteViewPager.currentItem = 0
+                    true
+                }
+                R.id.nav_fav_actresses -> {
+                    binding.favouriteViewPager.currentItem = 1
+                    true
+                }
+                else -> false
+            }
         }
+
+        binding.favouriteViewPager.registerOnPageChangeCallback(
+            object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    binding.bottomNavigation.menu.getItem(position).isChecked = true
+                }
+            }
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

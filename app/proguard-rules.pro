@@ -70,8 +70,7 @@
     public *;
 }
 
-# MaterialDrawer
--keep class com.mikepenz.materialdrawer.** { *; }
+# MaterialDrawer 9.x ships its own ProGuard rules, no app-level keep needed
 
 # Data models
 -keep class io.github.javiewer.adapter.item.** { *; }

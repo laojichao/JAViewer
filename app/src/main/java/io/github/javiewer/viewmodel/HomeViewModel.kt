@@ -40,6 +40,10 @@ class HomeViewModel @Inject constructor(
     /** 是否正在加载数据 */
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    /** 加载错误信息，null 表示无错误 */
+    val errorMessage: StateFlow<String?> = _errorMessage
+
     private val _currentTab = MutableStateFlow(0)
     /** 当前选中的标签页索引：0=主页, 1=已发布, 2=热门, 3=女优 */
     val currentTab: StateFlow<Int> = _currentTab
@@ -60,6 +64,7 @@ class HomeViewModel @Inject constructor(
     fun loadTab(tab: Int) {
         loadJob?.cancel()
         _isLoading.value = false
+        _errorMessage.value = null
         _currentTab.value = tab
         currentPage = 0
         isEnd = false
@@ -72,6 +77,7 @@ class HomeViewModel @Inject constructor(
     fun refresh() {
         loadJob?.cancel()
         _isLoading.value = false
+        _errorMessage.value = null
         currentPage = 0
         isEnd = false
         _movies.value = emptyList()
@@ -112,7 +118,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                _errorMessage.value = e.message ?: "加载失败"
             } finally {
                 _isLoading.value = false
             }

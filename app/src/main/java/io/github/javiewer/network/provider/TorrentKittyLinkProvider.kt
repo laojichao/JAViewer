@@ -1,5 +1,6 @@
 package io.github.javiewer.network.provider
 
+import android.util.Log
 import io.github.javiewer.adapter.item.DownloadLink
 import io.github.javiewer.adapter.item.MagnetLink
 import io.github.javiewer.network.TorrentKitty
@@ -32,7 +33,8 @@ class TorrentKittyLinkProvider : DownloadLinkProvider() {
                         tr.getElementsByAttributeValue("rel", "magnet").first()?.attr("href")
                     )
                 )
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w("TorrentKittyLinkProvider", "Failed to parse row", e)
             }
         }
         return links

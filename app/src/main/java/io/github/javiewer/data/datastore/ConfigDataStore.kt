@@ -3,12 +3,14 @@ package io.github.javiewer.data.datastore
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,6 +54,9 @@ class ConfigDataStore @Inject constructor(
 
         /** 下载计数器的偏好键 */
         val KEY_DOWNLOAD_COUNTER = longPreferencesKey("download_counter")
+
+        /** JSON 到 Room 迁移完成标记 */
+        val KEY_MIGRATION_COMPLETED = booleanPreferencesKey("migration_completed")
     }
 
     /** 配置值的响应式数据流 */
@@ -61,6 +66,20 @@ class ConfigDataStore @Inject constructor(
             dataSourceLink = prefs[KEY_DATA_SOURCE_LINK] ?: "",
             downloadCounter = prefs[KEY_DOWNLOAD_COUNTER] ?: 0
         )
+    }
+
+    /** 检查 JSON 到 Room 迁移是否已完成 */
+    suspend fun isMigrationCompleted(): Boolean {
+        return dataStore.data.map { prefs ->
+            prefs[KEY_MIGRATION_COMPLETED] ?: false
+        }.first()
+    }
+
+    /** 标记 JSON 到 Room 迁移已完成 */
+    suspend fun setMigrationCompleted() {
+        dataStore.edit { prefs ->
+            prefs[KEY_MIGRATION_COMPLETED] = true
+        }
     }
 
     /**

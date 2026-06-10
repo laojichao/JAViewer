@@ -9,6 +9,8 @@ import io.github.javiewer.data.db.dao.FavoriteActressDao
 import io.github.javiewer.data.db.dao.FavoriteMovieDao
 import io.github.javiewer.data.db.entity.FavoriteActressEntity
 import io.github.javiewer.data.db.entity.FavoriteMovieEntity
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -35,6 +37,9 @@ class ConfigRepository @Inject constructor(
     private val actressDao: FavoriteActressDao,
     private val configDataStore: ConfigDataStore
 ) {
+    companion object {
+        private const val TAG = "ConfigRepository"
+    }
 
     // --- Favorites (Room) ---
 
@@ -52,8 +57,9 @@ class ConfigRepository @Inject constructor(
      */
     fun getStarredMovies(): ArrayList<Movie> {
         return try {
-            ArrayList(runBlocking { movieDao.getAllSync().map { it.toMovie() } })
-        } catch (_: Exception) {
+            ArrayList(runBlocking(Dispatchers.IO) { movieDao.getAllSync().map { it.toMovie() } })
+        } catch (e: Exception) {
+            Log.w(TAG, "Room query failed, falling back to JSON", e)
             configurations.getStarredMovies()
         }
     }
@@ -64,8 +70,9 @@ class ConfigRepository @Inject constructor(
      */
     fun getStarredActresses(): ArrayList<Actress> {
         return try {
-            ArrayList(runBlocking { actressDao.getAllSync().map { it.toActress() } })
-        } catch (_: Exception) {
+            ArrayList(runBlocking(Dispatchers.IO) { actressDao.getAllSync().map { it.toActress() } })
+        } catch (e: Exception) {
+            Log.w(TAG, "Room query failed, falling back to JSON", e)
             configurations.getStarredActresses()
         }
     }
@@ -94,7 +101,7 @@ class ConfigRepository @Inject constructor(
      * @return true 表示已收藏，false 表示已取消收藏
      */
     fun toggleStarMovieSync(movie: Movie): Boolean {
-        return runBlocking { toggleStarMovie(movie) }
+        return runBlocking(Dispatchers.IO) { toggleStarMovie(movie) }
     }
 
     /**
@@ -113,7 +120,7 @@ class ConfigRepository @Inject constructor(
      * @return true 表示已收藏
      */
     fun isMovieStarredSync(movie: Movie): Boolean =
-        runBlocking { movieDao.isStarred(movie.code) }
+        runBlocking(Dispatchers.IO) { movieDao.isStarred(movie.code) }
 
     /**
      * 检查女优是否已收藏（同步阻塞版本）。
@@ -122,7 +129,7 @@ class ConfigRepository @Inject constructor(
      * @return true 表示已收藏
      */
     fun isActressStarredSync(actress: Actress): Boolean =
-        runBlocking { actressDao.isStarred(actress.name) }
+        runBlocking(Dispatchers.IO) { actressDao.isStarred(actress.name) }
 
     /**
      * 切换女优收藏状态。
@@ -150,7 +157,7 @@ class ConfigRepository @Inject constructor(
      */
     fun getDataSource(): DataSource {
         return try {
-            val prefs = runBlocking { configDataStore.configValues.first() }
+            val prefs = runBlocking(Dispatchers.IO) { configDataStore.configValues.first() }
             if (prefs.dataSourceLink.isNotEmpty()) {
                 // Try to find matching legacies from the global data sources list
                 val legacies = io.github.javiewer.JAViewer.DATA_SOURCES
@@ -159,7 +166,8 @@ class ConfigRepository @Inject constructor(
             } else {
                 configurations.getDataSource()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "DataStore read failed, falling back to JSON", e)
             configurations.getDataSource()
         }
     }
@@ -172,7 +180,7 @@ class ConfigRepository @Inject constructor(
     fun setDataSource(source: DataSource) {
         configurations.setDataSource(source)
         configurations.save()
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             configDataStore.setDataSource(source.name, source.link ?: "")
         }
     }
@@ -183,8 +191,9 @@ class ConfigRepository @Inject constructor(
      */
     fun getDownloadCounter(): Long {
         return try {
-            runBlocking { configDataStore.configValues.first().downloadCounter }
-        } catch (_: Exception) {
+            runBlocking(Dispatchers.IO) { configDataStore.configValues.first().downloadCounter }
+        } catch (e: Exception) {
+            Log.w(TAG, "DataStore read failed, falling back to JSON", e)
             configurations.getDownloadCounter()
         }
     }
@@ -197,7 +206,7 @@ class ConfigRepository @Inject constructor(
     fun setDownloadCounter(counter: Long) {
         configurations.setDownloadCounter(counter)
         configurations.save()
-        runBlocking { configDataStore.setDownloadCounter(counter) }
+        runBlocking(Dispatchers.IO) { configDataStore.setDownloadCounter(counter) }
     }
 
     /** 获取旧版配置对象引用 */

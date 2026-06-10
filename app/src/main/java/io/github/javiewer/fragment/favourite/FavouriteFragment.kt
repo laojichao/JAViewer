@@ -32,8 +32,10 @@ abstract class FavouriteFragment<T : Parcelable> : RecyclerFragment<T, LinearLay
 
         viewLifecycleOwner.lifecycleScope.launch {
             val items = loadItems()
-            val adapter = createAdapter(items)
-            setAdapter(adapter)
+            if (isAdded) {
+                val adapter = createAdapter(items)
+                setAdapter(adapter)
+            }
         }
     }
 

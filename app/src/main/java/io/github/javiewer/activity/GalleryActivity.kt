@@ -89,6 +89,10 @@ class GalleryActivity : SecureActivity() {
 
         val bundle = intent.extras ?: run { finish(); return }
         imageUrls = bundle.getStringArray("urls") ?: emptyArray()
+        if (imageUrls.isEmpty()) {
+            finish()
+            return
+        }
         binding.galleryPager.adapter = ImageAdapter(this, imageUrls)
         binding.galleryPager.currentItem = bundle.getInt("position")
         binding.galleryPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
@@ -151,7 +155,7 @@ class GalleryActivity : SecureActivity() {
             )
             dir.mkdirs()
             val index = binding.galleryPager.currentItem
-            Glide.with(applicationContext)
+            Glide.with(this@GalleryActivity)
                 .asBitmap()
                 .load(imageUrls[index])
                 .into(object : CustomTarget<Bitmap>() {

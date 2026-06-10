@@ -66,11 +66,11 @@ class DownloadLinkAdapter(
                     .setCancelable(false)
                     .show()
                 val linkUrl = link.link ?: run {
-                    if (!act.isFinishing) dialog.dismiss()
+                    if (!act.isFinishing && !act.isDestroyed) dialog.dismiss()
                     return@setOnClickListener
                 }
                 val scope = (act as? AppCompatActivity)?.lifecycleScope ?: run {
-                    if (!act.isFinishing) dialog.dismiss()
+                    if (!act.isFinishing && !act.isDestroyed) dialog.dismiss()
                     return@setOnClickListener
                 }
                 scope.launch {
@@ -81,7 +81,7 @@ class DownloadLinkAdapter(
                     } catch (e: Throwable) {
                         e.printStackTrace()
                     }
-                    if (!act.isFinishing) dialog.dismiss()
+                    if (!act.isFinishing && !act.isDestroyed) dialog.dismiss()
                 }
             } else {
                 onMagnetGet(link.getMagnetLinkStr())

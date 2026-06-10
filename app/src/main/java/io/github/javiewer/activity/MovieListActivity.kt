@@ -46,8 +46,13 @@ class MovieListActivity : SecureActivity() {
         supportActionBar?.title = intent.getStringExtra("title")
 
         if (savedInstanceState == null) {
+            val url = intent.getStringExtra("url")
+            if (url.isNullOrEmpty()) {
+                finish()
+                return
+            }
             val fragment = MovieListFragment().apply {
-                arguments = Bundle().apply { putString("link", intent.getStringExtra("url")) }
+                arguments = Bundle().apply { putString("link", url) }
             }
             supportFragmentManager.beginTransaction()
                 .replace(R.id.content_query, fragment)

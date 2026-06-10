@@ -46,9 +46,10 @@ class JAViewer : Application() {
         @JvmField
         val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/$webkit (KHTML, like Gecko) Chrome/89.0.$chrome Safari/$webkit"
 
-        /** 可用数据源列表，由 [io.github.javiewer.repository.DataSourceRepository] 管理 */
+        /** 可用数据源列表，由 [io.github.javiewer.repository.DataSourceRepository] 管理。
+         *  使用 synchronizedList 保证线程安全。 */
         @JvmField
-        val DATA_SOURCES: MutableList<DataSource> = mutableListOf()
+        val DATA_SOURCES: MutableList<DataSource> = java.util.Collections.synchronizedList(mutableListOf<DataSource>())
 
         /** 旧版用户配置对象，由 Hilt [io.github.javiewer.di.AppModule] 提供 */
         @JvmField
@@ -88,7 +89,8 @@ class JAViewer : Application() {
          * 重建 [BasicService] 实例，基于当前数据源的 URL。
          * 数据源切换后需调用此方法。
          *
-         * 注意：此方法为旧代码兼容层，新代码应通过 Hilt 注入 [BasicService]。
+         * 注意：此方法为旧代码兼容层，使用的是不含域名重写拦截器的 [httpClient]。
+         * 新代码应通过 Hilt 注入 [BasicService]，后者自动包含域名重写和 Cookie 管理。
          */
         @JvmStatic
         fun recreateService() {

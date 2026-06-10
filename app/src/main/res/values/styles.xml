@@ -1,13 +1,14 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="MaterialDrawerTheme.Light.DarkToolbar">
-        <!-- Customize your theme here. -->
+    <!-- Base application theme - Material 3 for MaterialDrawer 9.x -->
+    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="cardViewStyle">@style/CardView.Light</item>
         <item name="materialCardViewStyle">@style/CardView.Light</item>
+        <item name="materialDrawerStyle">@style/Widget.MaterialDrawerStyle</item>
+        <item name="materialDrawerHeaderStyle">@style/Widget.MaterialDrawerHeaderStyle</item>
     </style>
 
     <style name="AppTheme.Start" parent="AppTheme">
@@ -24,15 +25,15 @@
 
     <style name="AppTheme.NoActionBar.TransparentStatusBar" parent="AppTheme.NoActionBar" />
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
 
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
     </style>
 
-    <style name="SpinnerStyle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <style name="SpinnerStyle" parent="ThemeOverlay.Material3.ActionBar">
         <item name="android:spinnerItemStyle">@android:color/white</item>
         <item name="android:textSize">14sp</item>
     </style>

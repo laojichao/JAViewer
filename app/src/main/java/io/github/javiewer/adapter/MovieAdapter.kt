@@ -36,12 +36,13 @@ open class MovieAdapter(
         val movie = getItems()[position]
         holder.bind(movie)
         holder.binding.cardMovie.setOnClickListener {
-            val intent = Intent(activity, MovieActivity::class.java)
+            val act = activity ?: return@setOnClickListener
+            val intent = Intent(act, MovieActivity::class.java)
             intent.putExtra("movie", movie)
-            activity?.startActivity(intent)
+            act.startActivity(intent)
         }
         holder.binding.movieCover.setImageDrawable(null)
-        Glide.with(holder.binding.movieCover.context.applicationContext)
+        Glide.with(holder.binding.movieCover)
             .load(movie.coverUrl)
             .into(holder.binding.movieCover)
         holder.binding.movieHot.visibility = if (movie.hot && showIfHot) View.VISIBLE else View.GONE

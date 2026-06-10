@@ -31,7 +31,8 @@ class GenreAdapter(
         holder.binding.genreName.text = genre.name
         holder.binding.cardGenre.setOnClickListener {
             if (genre.link != null) {
-                activity?.startActivity(MovieListActivity.newIntent(activity, genre.name, genre.link!!))
+                val act = activity ?: return@setOnClickListener
+                act.startActivity(MovieListActivity.newIntent(act, genre.name, genre.link!!))
             }
         }
     }

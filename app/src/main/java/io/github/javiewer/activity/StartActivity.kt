@@ -57,8 +57,8 @@ class StartActivity : AppCompatActivity() {
         JAViewer.CONFIGURATIONS = io.github.javiewer.Configurations.load(config)
         lifecycleScope.launch {
             migrator.migrateIfNeeded()
+            loadProperties()
         }
-        loadProperties()
     }
 
     /** 异步加载远程配置 */
@@ -87,7 +87,7 @@ class StartActivity : AppCompatActivity() {
             val info = packageManager.getPackageInfo(packageName, 0)
             androidx.core.content.pm.PackageInfoCompat.getLongVersionCode(info).toInt()
         } catch (_: PackageManager.NameNotFoundException) {
-            throw RuntimeException("Hacked???")
+            0 // 无法获取版本号时返回默认值
         }
 
         if (properties.getLatestVersionCode() > 0 && currentVersion < properties.getLatestVersionCode()) {

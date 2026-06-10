@@ -28,8 +28,8 @@ object ViewUtil {
     fun alignIconToView(icon: View, view: View) {
         view.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                val viewMargin = view.layoutParams as ViewGroup.MarginLayoutParams
-                val iconMargin = icon.layoutParams as ViewGroup.MarginLayoutParams
+                val viewMargin = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+                val iconMargin = icon.layoutParams as? ViewGroup.MarginLayoutParams ?: return
                 var topMargin = viewMargin.topMargin
                 topMargin += (view.measuredHeight - icon.measuredHeight) / 2
                 iconMargin.topMargin = topMargin

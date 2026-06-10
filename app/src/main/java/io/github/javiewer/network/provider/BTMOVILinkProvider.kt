@@ -3,6 +3,7 @@ package io.github.javiewer.network.provider
 import io.github.javiewer.adapter.item.DownloadLink
 import io.github.javiewer.adapter.item.MagnetLink
 import io.github.javiewer.network.BTMOVI
+import android.util.Log
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 
@@ -33,7 +34,8 @@ class BTMOVILinkProvider : DownloadLinkProvider() {
                         null
                     )
                 )
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("BTMOVILinkProvider", "Failed to parse download link", e)
             }
         }
         return links

@@ -1,5 +1,6 @@
 package io.github.javiewer.network.provider
 
+import android.util.Log
 import io.github.javiewer.adapter.item.DownloadLink
 import io.github.javiewer.adapter.item.MagnetLink
 import io.github.javiewer.network.BTSO
@@ -33,7 +34,8 @@ class BTSOLinkProvider : DownloadLinkProvider() {
                         null
                     )
                 )
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w("BTSOLinkProvider", "Failed to parse row", e)
             }
         }
         return links

@@ -35,8 +35,9 @@ class DataSourceRepository @Inject constructor() {
         _dataSources.value = sources
         val replacements = mutableMapOf<String, String>()
         for (source in sources) {
+            val link = source.link ?: continue
             try {
-                val host = URI(source.link).host
+                val host = URI(link).host ?: continue
                 source.legacies?.forEach { legacy ->
                     replacements[legacy] = host
                 }

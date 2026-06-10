@@ -3,8 +3,8 @@ package io.github.javiewer.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -13,14 +13,12 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.button.MaterialButton
-import com.mikepenz.materialdrawer.Drawer
-import com.mikepenz.materialdrawer.DrawerBuilder
-import com.mikepenz.materialdrawer.model.AbstractBadgeableDrawerItem
+import com.mikepenz.materialdrawer.holder.ImageHolder
+import com.mikepenz.materialdrawer.holder.StringHolder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
-import com.mikepenz.materialize.util.UIUtils
-import androidx.constraintlayout.widget.Guideline
+import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.javiewer.JAViewer
 import io.github.javiewer.R
@@ -54,6 +52,7 @@ import javax.inject.Inject
 class MainActivity : SecureActivity() {
 
     companion object {
+        private const val TAG = "MainActivity"
         const val ID_HOME = 1L
         const val ID_FAV = 2L
         const val ID_POPULAR = 3L
@@ -82,7 +81,6 @@ class MainActivity : SecureActivity() {
     private var idOfDrawerItem: Long = ID_HOME
     private lateinit var fragmentManager: FragmentManager
     private var savedState: Bundle? = null
-    private var mDrawer: Drawer? = null
     private var firstClick: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,60 +107,108 @@ class MainActivity : SecureActivity() {
         })
     }
 
-    /** 构建 MaterialDrawer 导航抽屉 */
+    /** 构建 MaterialDrawer 导航抽屉（MaterialDrawer 9.x API） */
     private fun buildDrawer() {
-        val result = DrawerBuilder()
-            .withActivity(this)
-            .withToolbar(binding.appBarMain.toolbar)
-            .withHeader(R.layout.drawer_header)
-            .addDrawerItems(
-                PrimaryDrawerItem().withIdentifier(ID_HOME).withName("主页").withIcon(R.drawable.ic_menu_home).withIconTintingEnabled(true),
-                PrimaryDrawerItem().withIdentifier(ID_FAV).withName("收藏夹").withTag("Fav").withIcon(R.drawable.ic_menu_star).withIconTintingEnabled(true).withSelectable(false),
-                DividerDrawerItem(),
-                PrimaryDrawerItem().withIdentifier(ID_RELEASED).withName("已发布").withIcon(R.drawable.ic_menu_released).withIconTintingEnabled(true),
-                PrimaryDrawerItem().withIdentifier(ID_POPULAR).withName("热门").withIcon(R.drawable.ic_menu_popular).withIconTintingEnabled(true),
-                PrimaryDrawerItem().withIdentifier(ID_ACTRESSES).withName("女优").withIcon(R.drawable.ic_menu_actresses).withIconTintingEnabled(true),
-                PrimaryDrawerItem().withIdentifier(ID_GENRE).withName("类别").withIcon(R.drawable.ic_menu_genre).withIconTintingEnabled(true),
-                DividerDrawerItem(),
-                PrimaryDrawerItem().withIdentifier(ID_GITHUB1).withName("SeanChengN").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false),
-                PrimaryDrawerItem().withIdentifier(ID_GITHUB2).withName("SplashCodes").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false),
-                PrimaryDrawerItem().withIdentifier(ID_GITHUB3).withName("ccclao").withTag("Github").withIcon(R.drawable.ic_menu_github).withIconTintingEnabled(true).withSelectable(false)
-            )
-            .withSelectedItem(ID_HOME)
-            .withOnDrawerItemClickListener(object : Drawer.OnDrawerItemClickListener {
-                override fun onItemClick(view: View?, position: Int, drawerItem: IDrawerItem<*, *>): Boolean {
-                    idOfDrawerItem = drawerItem.identifier
-                    when (drawerItem.identifier) {
-                        ID_GITHUB1 -> openUrl("https://github.com/SeanChengN/JAViewer/releases")
-                        ID_GITHUB2 -> openUrl("https://github.com/SplashCodes/JAViewer/releases")
-                        ID_GITHUB3 -> openUrl("https://github.com/ccclao/JAViewer/releases")
-                        ID_FAV -> startActivity(Intent(this@MainActivity, FavouriteActivity::class.java))
-                        else -> {
-                            if (drawerItem is AbstractBadgeableDrawerItem<*>) {
-                                setFragment(drawerItem.identifier.toInt(), drawerItem.name.text)
-                            }
-                        }
+        val slider = binding.slider
+
+        // 设置自定义头部
+        slider.headerView = layoutInflater.inflate(R.layout.drawer_header, null)
+
+        // 添加抽屉项
+        slider.itemAdapter.add(
+            PrimaryDrawerItem().apply {
+                identifier = ID_HOME
+                name = StringHolder("主页")
+                icon = ImageHolder(R.drawable.ic_menu_home)
+                isIconTinted = true
+            },
+            PrimaryDrawerItem().apply {
+                identifier = ID_FAV
+                name = StringHolder("收藏夹")
+                icon = ImageHolder(R.drawable.ic_menu_star)
+                isIconTinted = true
+                isSelectable = false
+            },
+            DividerDrawerItem(),
+            PrimaryDrawerItem().apply {
+                identifier = ID_RELEASED
+                name = StringHolder("已发布")
+                icon = ImageHolder(R.drawable.ic_menu_released)
+                isIconTinted = true
+            },
+            PrimaryDrawerItem().apply {
+                identifier = ID_POPULAR
+                name = StringHolder("热门")
+                icon = ImageHolder(R.drawable.ic_menu_popular)
+                isIconTinted = true
+            },
+            PrimaryDrawerItem().apply {
+                identifier = ID_ACTRESSES
+                name = StringHolder("女优")
+                icon = ImageHolder(R.drawable.ic_menu_actresses)
+                isIconTinted = true
+            },
+            PrimaryDrawerItem().apply {
+                identifier = ID_GENRE
+                name = StringHolder("类别")
+                icon = ImageHolder(R.drawable.ic_menu_genre)
+                isIconTinted = true
+            },
+            DividerDrawerItem(),
+            PrimaryDrawerItem().apply {
+                identifier = ID_GITHUB1
+                name = StringHolder("SeanChengN")
+                icon = ImageHolder(R.drawable.ic_menu_github)
+                isIconTinted = true
+                isSelectable = false
+            },
+            PrimaryDrawerItem().apply {
+                identifier = ID_GITHUB2
+                name = StringHolder("SplashCodes")
+                icon = ImageHolder(R.drawable.ic_menu_github)
+                isIconTinted = true
+                isSelectable = false
+            },
+            PrimaryDrawerItem().apply {
+                identifier = ID_GITHUB3
+                name = StringHolder("ccclao")
+                icon = ImageHolder(R.drawable.ic_menu_github)
+                isIconTinted = true
+                isSelectable = false
+            }
+        )
+
+        // 设置点击监听器
+        slider.onDrawerItemClickListener = { _, drawerItem, _ ->
+            idOfDrawerItem = drawerItem.identifier
+            when (drawerItem.identifier) {
+                ID_GITHUB1 -> openUrl("https://github.com/SeanChengN/JAViewer/releases")
+                ID_GITHUB2 -> openUrl("https://github.com/SplashCodes/JAViewer/releases")
+                ID_GITHUB3 -> openUrl("https://github.com/ccclao/JAViewer/releases")
+                ID_FAV -> startActivity(Intent(this@MainActivity, FavouriteActivity::class.java))
+                else -> {
+                    val name = (drawerItem as? PrimaryDrawerItem)?.name?.getText(this@MainActivity)
+                    if (name != null) {
+                        setFragment(drawerItem.identifier.toInt(), name)
                     }
-                    return false
                 }
-            })
-            .build()
+            }
+            false
+        }
 
-        val guideline = result.header.findViewById<Guideline>(R.id.guideline_status_bar)
-        guideline.setGuidelineBegin(UIUtils.getStatusBarHeight(this, true))
-
-        mDrawer = result
-
-        val textSource = result.header.findViewById<TextView>(R.id.text_view_source)
+        // 设置头部按钮
+        val header = slider.headerView!!
+        val textSource = header.findViewById<TextView>(R.id.text_view_source)
         textSource.text = configRepository.getDataSource().toString()
 
-        val btnSwitch = result.header.findViewById<MaterialButton>(R.id.btn_switch_source)
+        val btnSwitch = header.findViewById<MaterialButton>(R.id.btn_switch_source)
         btnSwitch.setOnClickListener { onSwitchSource() }
 
+        // 恢复选中状态
         if (savedState != null) {
-            result.setSelection(savedState!!.getInt("SelectedDrawerItemId", ID_HOME.toInt()).toLong())
+            slider.setSelection((savedState?.getInt("SelectedDrawerItemId", ID_HOME.toInt()) ?: ID_HOME.toInt()).toLong(), false)
         } else {
-            result.setSelection(ID_HOME)
+            slider.setSelection(ID_HOME, false)
         }
     }
 
@@ -170,7 +216,7 @@ class MainActivity : SecureActivity() {
     private fun initFragments() {
         fragmentManager = supportFragmentManager
         if (savedState != null) {
-            val tag = savedState!!.getString("CurrentFragment")
+            val tag = savedState?.getString("CurrentFragment")
             currentFragment = fragmentManager.findFragmentByTag(tag)
             return
         }
@@ -179,7 +225,8 @@ class MainActivity : SecureActivity() {
             try {
                 val fragment = fragmentClass.getDeclaredConstructor().newInstance()
                 transaction.add(R.id.content, fragment, fragmentClass.simpleName).hide(fragment)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to create fragment", e)
             }
         }
         transaction.commit()
@@ -241,11 +288,12 @@ class MainActivity : SecureActivity() {
         binding.appBarMain.searchView.setOnQueryTextListener(object : SimpleSearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 try {
+                    val link = configRepository.getDataSource().link ?: return false
                     startActivity(
                         MovieListActivity.newIntent(
                             this@MainActivity,
                             "$query 的搜索结果",
-                            "${configRepository.getDataSource().link}${BasicService.LANGUAGE_NODE}/search/${URLEncoder.encode(query, "UTF-8")}"
+                            "$link${BasicService.LANGUAGE_NODE}/search/${URLEncoder.encode(query, "UTF-8")}"
                         )
                     )
                 } catch (_: Exception) {
