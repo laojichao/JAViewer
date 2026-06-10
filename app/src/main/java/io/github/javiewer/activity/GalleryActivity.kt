@@ -1,6 +1,5 @@
 package io.github.javiewer.activity
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -13,7 +12,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.widget.Toast
-import androidx.appcompat.app.ActionBar
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat

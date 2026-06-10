@@ -65,8 +65,14 @@ class DownloadLinkAdapter(
                     .setView(layout)
                     .setCancelable(false)
                     .show()
-                val linkUrl = link.link ?: return@setOnClickListener
-                val scope = (act as? AppCompatActivity)?.lifecycleScope ?: return@setOnClickListener
+                val linkUrl = link.link ?: run {
+                    if (!act.isFinishing) dialog.dismiss()
+                    return@setOnClickListener
+                }
+                val scope = (act as? AppCompatActivity)?.lifecycleScope ?: run {
+                    if (!act.isFinishing) dialog.dismiss()
+                    return@setOnClickListener
+                }
                 scope.launch {
                     try {
                         val body = provider.get(linkUrl)

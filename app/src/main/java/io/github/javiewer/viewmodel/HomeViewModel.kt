@@ -88,26 +88,12 @@ class HomeViewModel @Inject constructor(
             try {
                 val page = currentPage + 1
                 when (_currentTab.value) {
-                    0 -> {
-                        val newMovies = movieRepository.getMovies(page)
-                        if (newMovies.isEmpty()) {
-                            isEnd = true
-                        } else {
-                            _movies.value = _movies.value + newMovies
-                            currentPage = page
+                    0, 1, 2 -> {
+                        val newMovies = when (_currentTab.value) {
+                            0 -> movieRepository.getMovies(page)
+                            1 -> movieRepository.getReleased(page)
+                            else -> movieRepository.getPopular(page)
                         }
-                    }
-                    1 -> {
-                        val newMovies = movieRepository.getReleased(page)
-                        if (newMovies.isEmpty()) {
-                            isEnd = true
-                        } else {
-                            _movies.value = _movies.value + newMovies
-                            currentPage = page
-                        }
-                    }
-                    2 -> {
-                        val newMovies = movieRepository.getPopular(page)
                         if (newMovies.isEmpty()) {
                             isEnd = true
                         } else {

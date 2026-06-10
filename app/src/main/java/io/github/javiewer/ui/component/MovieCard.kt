@@ -1,7 +1,5 @@
 package io.github.javiewer.ui.component
 
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.widget.ImageView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

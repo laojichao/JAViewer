@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.MotionEvent
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
@@ -90,14 +89,16 @@ class WebViewActivity : SecureActivity() {
                 val url = request.url.toString()
                 if (url.contains("?hash=")) {
                     val cookie = cookieManager.getCookie(url)
-                    val request = Request.Builder()
+                    val hashRequest = Request.Builder()
                         .url(url)
                         .header("Referer", "https://javiewer.github.io/")
                         .header("Cookie", cookie ?: "")
                         .get()
                         .build()
-                    httpClient.newCall(request).enqueue(object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {}
+                    httpClient.newCall(hashRequest).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            e.printStackTrace()
+                        }
                         override fun onResponse(call: Call, response: Response) {
                             if (isFinishing) {
                                 response.close()
@@ -108,7 +109,8 @@ class WebViewActivity : SecureActivity() {
                                 val obj = Gson().fromJson(json, JsonObject::class.java)
                                 val playBack = obj.get("url").asString
                                 testVideoPlayBack(playBack)
-                            } catch (_: Exception) {
+                            } catch (e: Exception) {
+                                e.printStackTrace()
                             } finally {
                                 response.close()
                             }
@@ -133,7 +135,9 @@ class WebViewActivity : SecureActivity() {
     private fun testVideoPlayBack(url: String) {
         val request = Request.Builder().url(url).get().build()
         httpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
             override fun onResponse(call: Call, response: Response) {
                 if (isFinishing) {
                     response.close()
@@ -161,6 +165,12 @@ class WebViewActivity : SecureActivity() {
         locked = false
         button.isEnabled = false
         Toast.makeText(this, "锁定已解除，请完成验证码，不要按任何其他地方！", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onDestroy() {
+        binding.webView.stopLoading()
+        binding.webView.destroy()
+        super.onDestroy()
     }
 
     override fun onSupportNavigateUp(): Boolean {

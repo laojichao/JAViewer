@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.tabs.TabLayout
-import io.github.javiewer.R
 import io.github.javiewer.adapter.ViewPagerAdapter
 import io.github.javiewer.databinding.FragmentFavouriteBinding
 import io.github.javiewer.fragment.ExtendedAppBarFragment

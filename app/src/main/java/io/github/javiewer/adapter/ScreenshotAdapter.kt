@@ -44,11 +44,13 @@ class ScreenshotAdapter(
             .into(holder.binding.screenshotImageView)
 
         holder.binding.screenshotImageView.setOnClickListener {
+            val pos = holder.bindingAdapterPosition
+            if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
             val urls = screenshots.map { it.imageUrl ?: "" }.toTypedArray()
             val bundle = Bundle().apply {
                 putStringArray("urls", urls)
                 putParcelable("movie", movie)
-                putInt("position", holder.bindingAdapterPosition)
+                putInt("position", pos)
             }
             activity?.startActivity(android.content.Intent(activity, GalleryActivity::class.java).putExtras(bundle))
         }

@@ -79,35 +79,40 @@ class Configurations {
      * @param source 新的数据源
      */
     fun setDataSource(source: DataSource) {
-        this.data_source = source
+        synchronized(this) {
+            this.data_source = source
+        }
     }
 
     /**
      * 将当前配置保存到 JSON 文件。
      * 使用 Gson 序列化并通过 FileWriter 写入磁盘。
+     * 通过 [synchronized] 保证读取状态的一致性。
      */
     fun save() {
         val f = file ?: return
-        try {
-            FileWriter(f).use { writer ->
-                gson.toJson(this, writer)
-                writer.flush()
+        synchronized(this) {
+            try {
+                FileWriter(f).use { writer ->
+                    gson.toJson(this, writer)
+                    writer.flush()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
     /** 是否显示广告 */
-    fun showAds(): Boolean = show_ads
+    fun showAds(): Boolean = synchronized(this) { show_ads }
 
     /** 设置是否显示广告 */
     fun setShowAds(show_ads: Boolean) {
-        this.show_ads = show_ads
+        synchronized(this) { this.show_ads = show_ads }
     }
 
     /** 获取下载计数器值 */
-    fun getDownloadCounter(): Long = download_counter
+    fun getDownloadCounter(): Long = synchronized(this) { download_counter }
 
     /**
      * 设置下载计数器值。
@@ -115,7 +120,7 @@ class Configurations {
      * @param counter 新的计数值
      */
     fun setDownloadCounter(counter: Long) {
-        this.download_counter = counter
+        synchronized(this) { this.download_counter = counter }
     }
 
     companion object {

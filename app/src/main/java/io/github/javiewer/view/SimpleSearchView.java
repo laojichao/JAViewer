@@ -2,7 +2,6 @@ package io.github.javiewer.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.speech.RecognizerIntent;
@@ -119,7 +117,6 @@ public class SimpleSearchView extends FrameLayout implements Filter.FilterListen
         initStyle(attrs, defStyleAttr);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void hide(final View view, final AnimationUtil.AnimationListener listener) {
         int cx = view.getWidth() - (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, 24, view.getResources().getDisplayMetrics());
@@ -325,9 +322,6 @@ public class SimpleSearchView extends FrameLayout implements Filter.FilterListen
     //Public Attributes
 
     public void showKeyboard(View view) {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1 && view.hasFocus()) {
-            view.clearFocus();
-        }
         view.requestFocus();
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(view, 0);
@@ -335,11 +329,7 @@ public class SimpleSearchView extends FrameLayout implements Filter.FilterListen
 
     @Override
     public void setBackground(Drawable background) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mSearchTopBar.setBackground(background);
-        } else {
-            mSearchTopBar.setBackgroundDrawable(background);
-        }
+        mSearchTopBar.setBackground(background);
     }
 
     @Override
@@ -376,11 +366,7 @@ public class SimpleSearchView extends FrameLayout implements Filter.FilterListen
     }
 
     public void setSuggestionBackground(Drawable background) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mSuggestionsListView.setBackground(background);
-        } else {
-            mSuggestionsListView.setBackgroundDrawable(background);
-        }
+        mSuggestionsListView.setBackground(background);
     }
 
     public void setCursorDrawable(int drawable) {
@@ -587,13 +573,8 @@ public class SimpleSearchView extends FrameLayout implements Filter.FilterListen
             }
         };
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mSearchLayout.setVisibility(View.VISIBLE);
-            AnimationUtil.reveal(mSearchTopBar, animationListener);
-
-        } else {
-            AnimationUtil.fadeInView(mSearchLayout, mAnimationDuration, animationListener);
-        }
+        mSearchLayout.setVisibility(View.VISIBLE);
+        AnimationUtil.reveal(mSearchTopBar, animationListener);
     }
 
     /**
@@ -633,14 +614,8 @@ public class SimpleSearchView extends FrameLayout implements Filter.FilterListen
         };
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mSearchLayout.setVisibility(View.VISIBLE);
-            hide(mSearchTopBar, animationListener);
-
-        } else {
-            mSearchLayout.setVisibility(VISIBLE);
-            AnimationUtil.fadeOutView(mSearchLayout, AnimationUtil.ANIMATION_DURATION_MEDIUM, animationListener);
-        }
+        mSearchLayout.setVisibility(View.VISIBLE);
+        hide(mSearchTopBar, animationListener);
     }
 
     /**

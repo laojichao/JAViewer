@@ -32,8 +32,15 @@ class JAViewer : Application() {
     companion object {
         private const val TAG = "JAViewer"
 
-        private val webkit = "${(System.currentTimeMillis() % 550)}.${(System.currentTimeMillis() % 99)}"
-        private val chrome = "${(System.currentTimeMillis() % 4000)}.${(System.currentTimeMillis() % 999)}"
+        private val webkit: String
+        private val chrome: String
+
+        init {
+            val ts1 = System.currentTimeMillis()
+            val ts2 = System.nanoTime()
+            webkit = "${(ts1 % 550)}.${(ts2 % 99)}"
+            chrome = "${(ts2 % 4000)}.${(ts1 % 999)}"
+        }
 
         /** 动态生成的 User-Agent 字符串，模拟 Chrome 浏览器 */
         @JvmField

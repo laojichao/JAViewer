@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -177,11 +176,14 @@ class MovieActivity : SecureActivity() {
         }
 
         // Genre
+        genreBinding.genreFlowLayout.removeAllViews()
         if (detail.genres.isEmpty()) {
             genreBinding.genreFlowLayout.visibility = View.GONE
             genreBinding.genreEmptyText.visibility = View.VISIBLE
             ViewUtil.alignIconToView(genreBinding.movieIconGenre, genreBinding.genreEmptyText)
         } else {
+            genreBinding.genreFlowLayout.visibility = View.VISIBLE
+            genreBinding.genreEmptyText.visibility = View.GONE
             for ((i, genre) in detail.genres.withIndex()) {
                 val view = layoutInflater.inflate(R.layout.chip_genre, genreBinding.genreFlowLayout, false)
                 val chip = view.findViewById<Chip>(R.id.chip_genre)
@@ -290,63 +292,57 @@ class MovieActivity : SecureActivity() {
             VideoPlayerActivity.start(this, video!!.preview_video_url, movie.title)
             return
         }
-        if (isFinishing || isDestroyed) return
-        if (progressDialog?.isShowing == true) return
-        progressDialog = showProgressDialog("正在搜索该影片的预览视频")
-        lifecycleScope.launch {
-            try {
-                val result = PSVS.INSTANCE.search(movie.code)
-                if (result.success && result.response.videos.isNotEmpty()) {
-                    video = result.response.videos[0]
-                    if (!isFinishing && !isDestroyed) {
-                        VideoPlayerActivity.start(this@MovieActivity, video!!.preview_video_url, movie.title)
-                        Toast.makeText(this@MovieActivity, "提示：预览视频可能需要科学上网", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    if (!isFinishing && !isDestroyed) {
-                        Toast.makeText(this@MovieActivity, "该影片暂无预览", Toast.LENGTH_LONG).show()
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                if (!isFinishing && !isDestroyed) {
-                    Toast.makeText(this@MovieActivity, "获取预览失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
-                }
-            }
-            dismissProgress()
+        searchAndPlay("正在搜索该影片的预览视频") {
+            VideoPlayerActivity.start(this@MovieActivity, video!!.preview_video_url, movie.title)
+            Toast.makeText(this@MovieActivity, "提示：预览视频可能需要科学上网", Toast.LENGTH_LONG).show()
         }
     }
 
     /** 点击播放按钮，搜索并播放在线视频 */
     fun onPlay() {
         if (video != null) {
-            val ts = (System.currentTimeMillis() / 1000).toString()
-            val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}"
-            VideoPlayerActivity.start(this, url, movie.title)
+            playOnlineVideo()
             return
         }
+        searchAndPlay("正在搜索该影片的在线视频源") {
+            playOnlineVideo()
+        }
+    }
+
+    /** 构建在线视频播放 URL 并启动播放器 */
+    private fun playOnlineVideo() {
+        val ts = (System.currentTimeMillis() / 1000).toString()
+        val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}"
+        VideoPlayerActivity.start(this, url, movie.title)
+    }
+
+    /**
+     * 搜索影片视频源，成功后执行 [onFound] 回调。
+     *
+     * @param progressMessage 搜索进度提示文案
+     * @param onFound 找到视频后的操作（在主线程执行）
+     */
+    private fun searchAndPlay(progressMessage: String, onFound: () -> Unit) {
         if (isFinishing || isDestroyed) return
         if (progressDialog?.isShowing == true) return
-        progressDialog = showProgressDialog("正在搜索该影片的在线视频源")
+        progressDialog = showProgressDialog(progressMessage)
         lifecycleScope.launch {
             try {
                 val result = PSVS.INSTANCE.search(movie.code)
                 if (result.success && result.response.videos.isNotEmpty()) {
                     video = result.response.videos[0]
                     if (!isFinishing && !isDestroyed) {
-                        val ts = (System.currentTimeMillis() / 1000).toString()
-                        val url = "https://api.rekonquer.com/psvs/mp4.php?vid=${video!!.vid}&ts=$ts&sign=${JAViewer.b(video!!.vid, ts)}"
-                        VideoPlayerActivity.start(this@MovieActivity, url, movie.title)
+                        onFound()
                     }
                 } else {
                     if (!isFinishing && !isDestroyed) {
-                        Toast.makeText(this@MovieActivity, "该影片暂无在线视频源", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@MovieActivity, "该影片暂无可用视频源", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 if (!isFinishing && !isDestroyed) {
-                    Toast.makeText(this@MovieActivity, "获取在线视频源失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MovieActivity, "获取视频源失败，请重试，或使用科学上网", Toast.LENGTH_LONG).show()
                 }
             }
             dismissProgress()

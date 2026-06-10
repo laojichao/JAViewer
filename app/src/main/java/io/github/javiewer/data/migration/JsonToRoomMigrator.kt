@@ -2,7 +2,6 @@ package io.github.javiewer.data.migration
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.github.javiewer.Configurations
 import io.github.javiewer.JAViewer
 import io.github.javiewer.data.datastore.ConfigDataStore
 import io.github.javiewer.data.db.dao.FavoriteActressDao
@@ -10,7 +9,6 @@ import io.github.javiewer.data.db.dao.FavoriteMovieDao
 import io.github.javiewer.data.db.entity.FavoriteActressEntity
 import io.github.javiewer.data.db.entity.FavoriteMovieEntity
 import kotlinx.coroutines.flow.first
-import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 

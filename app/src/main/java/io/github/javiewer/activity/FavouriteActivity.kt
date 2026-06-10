@@ -5,8 +5,6 @@ import android.view.MenuItem
 import androidx.core.content.ContextCompat
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager
-import com.google.android.material.appbar.AppBarLayout
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.javiewer.R
 import io.github.javiewer.adapter.ViewPagerAdapter

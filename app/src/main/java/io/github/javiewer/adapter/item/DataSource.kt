@@ -2,7 +2,6 @@ package io.github.javiewer.adapter.item
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.Serializable
 
 /**
  * 数据源配置模型，定义一个可用的 AVMOO 站点及其历史域名。
