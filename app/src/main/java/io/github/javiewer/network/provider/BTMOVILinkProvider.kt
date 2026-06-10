@@ -24,7 +24,8 @@ class BTMOVILinkProvider : DownloadLinkProvider() {
         for (row in rows) {
             try {
                 val a = row.getElementsByTag("a").first() ?: continue
-                val url = BTMOVI.BASE_URL + a.attr("href")
+                val href = a.attr("href")
+                val url = if (href.startsWith("http://") || href.startsWith("https://")) href else BTMOVI.BASE_URL + href
                 links.add(
                     DownloadLink.create(
                         row.getElementsByClass("item-title").first()?.text() ?: "",

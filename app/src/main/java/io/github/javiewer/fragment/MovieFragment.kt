@@ -36,10 +36,14 @@ abstract class MovieFragment : RecyclerFragment<Movie, LinearLayoutManager>() {
 
             override fun onResult(response: ResponseBody) {
                 super.onResult(response)
-                val wrappers = AVMOProvider.parseMovies(response.string())
-                val pos = getItems().size
-                getItems().addAll(wrappers)
-                getAdapter()?.notifyItemRangeInserted(pos, wrappers.size)
+                try {
+                    val wrappers = AVMOProvider.parseMovies(response.string())
+                    val pos = getItems().size
+                    getItems().addAll(wrappers)
+                    getAdapter()?.notifyItemRangeInserted(pos, wrappers.size)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         })
 

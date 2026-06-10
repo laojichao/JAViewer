@@ -98,11 +98,13 @@ class Configurations {
             return try {
                 // 确保父目录存在
                 f.parentFile?.mkdirs()
-                FileWriter(f).use { writer ->
+                // 先写入临时文件，再原子重命名，防止崩溃导致文件损坏
+                val tmp = File(f.absolutePath + ".tmp")
+                FileWriter(tmp).use { writer ->
                     gson.toJson(this, writer)
                     writer.flush()
                 }
-                true
+                tmp.renameTo(f)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to save configurations to ${f.absolutePath}", e)
                 false

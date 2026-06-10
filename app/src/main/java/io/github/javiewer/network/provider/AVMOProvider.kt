@@ -92,12 +92,15 @@ object AVMOProvider {
         movie.coverUrl = document.select("[class=bigImage]").first()?.attr("href") ?: ""
 
         for (box in document.select("[class*=sample-box]")) {
-            movie.screenshots.add(
-                Screenshot.create(
-                    box.getElementsByTag("img").first()?.attr("src") ?: "",
-                    box.attr("href")
+            val src = box.getElementsByTag("img").first()?.attr("src") ?: ""
+            if (src.isNotEmpty()) {
+                movie.screenshots.add(
+                    Screenshot.create(
+                        src,
+                        box.attr("href")
+                    )
                 )
-            )
+            }
         }
 
         for (box in document.select("[class*=avatar-box]")) {
@@ -113,7 +116,7 @@ object AVMOProvider {
         val info = document.select("div.info").first()
         if (info != null) {
             for (p in info.select("p:not([class*=header]):has(span:not([class=genre]))")) {
-                val strings = p.text().split(":")
+                val strings = p.text().split(":", limit = 2)
                 movie.headers.add(
                     MovieDetail.Header.create(
                         strings[0].trim(),
@@ -124,7 +127,7 @@ object AVMOProvider {
             }
 
             val headerNames = info.select("p[class*=header]").map { it.text().replace(":", "") }
-            val headerAttr = info.select("p > a").map { arrayOf(it.text(), it.attr("href")) }
+            val headerAttr = info.select("p[class*=header] > a").map { arrayOf(it.text(), it.attr("href")) }
             for (i in 0 until minOf(headerNames.size, headerAttr.size)) {
                 movie.headers.add(
                     MovieDetail.Header.create(

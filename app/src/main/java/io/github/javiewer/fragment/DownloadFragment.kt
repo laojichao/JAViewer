@@ -47,7 +47,12 @@ class DownloadFragment : RecyclerFragment<DownloadLink, LinearLayoutManager>() {
 
             override fun onResult(response: ResponseBody) {
                 super.onResult(response)
-                val downloads = provider?.parseDownloadLinks(response.string()) ?: return
+                val downloads: List<DownloadLink>
+                try {
+                    downloads = provider?.parseDownloadLinks(response.string()) ?: return
+                } catch (e: Exception) {
+                    return
+                }
                 val pos = getItems().size
                 if (downloads.isEmpty()) {
                     setEnd(true)

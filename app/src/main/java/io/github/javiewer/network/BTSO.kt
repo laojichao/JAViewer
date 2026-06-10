@@ -41,11 +41,13 @@ interface BTSO {
     companion object {
         const val BASE_URL = "https://btsow.com"
 
-        /** 自构建的 Retrofit 单例 */
-        val INSTANCE: BTSO = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(JAViewer.httpClient)
-            .build()
-            .create(BTSO::class.java)
+        /** 自构建的 Retrofit 单例，使用 lazy 延迟初始化避免类加载时的开销 */
+        val INSTANCE: BTSO by lazy {
+            Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(JAViewer.httpClient)
+                .build()
+                .create(BTSO::class.java)
+        }
     }
 }

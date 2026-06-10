@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -17,12 +16,9 @@ import com.mikepenz.materialdrawer.holder.ImageHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
-import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.javiewer.JAViewer
 import io.github.javiewer.R
-import io.github.javiewer.adapter.item.DataSource
 import io.github.javiewer.databinding.ActivityMainBinding
 import io.github.javiewer.fragment.ActressesFragment
 import io.github.javiewer.fragment.ExtendedAppBarFragment

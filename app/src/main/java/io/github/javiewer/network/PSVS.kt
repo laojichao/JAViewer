@@ -33,12 +33,14 @@ interface PSVS {
 
         private val json = Json { ignoreUnknownKeys = true }
 
-        /** 自构建的 Retrofit 单例 */
-        val INSTANCE: PSVS = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(JAViewer.httpClient)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-            .create(PSVS::class.java)
+        /** 自构建的 Retrofit 单例，延迟初始化以确保 JAViewer.httpClient 已就绪 */
+        val INSTANCE: PSVS by lazy {
+            Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(JAViewer.httpClient)
+                .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                .build()
+                .create(PSVS::class.java)
+        }
     }
 }

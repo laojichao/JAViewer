@@ -52,11 +52,13 @@ interface BTMOVI {
     companion object {
         const val BASE_URL = "https://btmovi.space"
 
-        /** 自构建的 Retrofit 单例 */
-        val INSTANCE: BTMOVI = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(JAViewer.httpClient)
-            .build()
-            .create(BTMOVI::class.java)
+        /** 自构建的 Retrofit 单例，延迟初始化以确保 JAViewer.httpClient 已就绪 */
+        val INSTANCE: BTMOVI by lazy {
+            Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(JAViewer.httpClient)
+                .build()
+                .create(BTMOVI::class.java)
+        }
     }
 }

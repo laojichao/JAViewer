@@ -53,11 +53,13 @@ interface BH {
     companion object {
         const val BASE_URL = "https://baihu7.xyz"
 
-        /** 自构建的 Retrofit 单例 */
-        val INSTANCE: BH = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(JAViewer.httpClient)
-            .build()
-            .create(BH::class.java)
+        /** 自构建的 Retrofit 单例，延迟初始化，仅在首次访问时创建 */
+        val INSTANCE: BH by lazy {
+            Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(JAViewer.httpClient)
+                .build()
+                .create(BH::class.java)
+        }
     }
 }

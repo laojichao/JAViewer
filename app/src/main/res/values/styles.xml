@@ -3,12 +3,10 @@
     <!-- Base application theme - Material 3 for MaterialDrawer 9.x -->
     <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryDark</item>
         <item name="cardViewStyle">@style/CardView.Light</item>
         <item name="materialCardViewStyle">@style/CardView.Light</item>
-        <item name="materialDrawerStyle">@style/Widget.MaterialDrawerStyle</item>
-        <item name="materialDrawerHeaderStyle">@style/Widget.MaterialDrawerHeaderStyle</item>
     </style>
 
     <style name="AppTheme.Start" parent="AppTheme">

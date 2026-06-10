@@ -49,6 +49,11 @@ abstract class DownloadLinkProvider {
     abstract fun parseMagnetLink(htmlContent: String): MagnetLink?
 
     companion object {
+        private val btso = BTSOLinkProvider()
+        private val torrentKitty = TorrentKittyLinkProvider()
+        private val bh = BHLinkProvider()
+        private val btmovi = BTMOVILinkProvider()
+
         /**
          * 根据名称获取对应的下载链接提供者。
          *
@@ -58,10 +63,10 @@ abstract class DownloadLinkProvider {
         @JvmStatic
         fun getProvider(name: String): DownloadLinkProvider? {
             return when (name.lowercase().trim()) {
-                "btso" -> BTSOLinkProvider()
-                "torrentkitty" -> TorrentKittyLinkProvider()
-                "bh" -> BHLinkProvider()
-                "btmovi" -> BTMOVILinkProvider()
+                "btso" -> btso
+                "torrentkitty" -> torrentKitty
+                "bh" -> bh
+                "btmovi" -> btmovi
                 else -> null
             }
         }
