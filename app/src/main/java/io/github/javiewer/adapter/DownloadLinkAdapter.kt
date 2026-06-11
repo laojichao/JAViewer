@@ -43,7 +43,9 @@ class DownloadLinkAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val link = getItems()[position]
+        val pos = holder.bindingAdapterPosition
+        if (pos == RecyclerView.NO_POSITION) return
+        val link = getItems()[pos]
         holder.bind(link)
         holder.binding.layoutDownload.setOnClickListener {
             if (!link.hasMagnetLink()) {

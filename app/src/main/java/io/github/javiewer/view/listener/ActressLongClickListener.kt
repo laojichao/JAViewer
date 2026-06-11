@@ -30,7 +30,15 @@ class ActressLongClickListener(
     override fun onLongClick(v: View): Boolean {
         val act = activity ?: return true
 
-        val isStarred = configRepository.isActressStarredSync(actress)
+        val scope = (act as? AppCompatActivity)?.lifecycleScope ?: return true
+        scope.launch {
+            val isStarred = configRepository.isActressStarred(actress)
+            showContextMenu(act, isStarred)
+        }
+        return true
+    }
+
+    private fun showContextMenu(act: Activity, isStarred: Boolean) {
         val items = if (isStarred) arrayOf("复制女优名字", "取消收藏") else arrayOf("复制女优名字", "收藏")
 
         AlertDialog.Builder(act)
@@ -54,6 +62,5 @@ class ActressLongClickListener(
             }
             .create()
             .show()
-        return true
     }
 }

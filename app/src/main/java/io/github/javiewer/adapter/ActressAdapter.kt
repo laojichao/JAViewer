@@ -36,7 +36,9 @@ class ActressAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val actress = getItems()[position]
+        val pos = holder.bindingAdapterPosition
+        if (pos == RecyclerView.NO_POSITION) return
+        val actress = getItems()[pos]
         holder.bind(actress)
         holder.binding.layoutActress.setOnClickListener(ActressClickListener(actress, activity))
         holder.binding.layoutActress.setOnLongClickListener(ActressLongClickListener(actress, activity, configRepository))

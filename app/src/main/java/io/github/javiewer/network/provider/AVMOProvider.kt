@@ -86,15 +86,15 @@ object AVMOProvider {
     @JvmStatic
     fun parseMoviesDetail(html: String): MovieDetail {
         val document = Jsoup.parse(html)
-        val movie = MovieDetail()
 
-        movie.title = document.select("div.container > h3").first()?.text() ?: ""
-        movie.coverUrl = document.select("[class=bigImage]").first()?.attr("href") ?: ""
+        val title = document.select("div.container > h3").first()?.text() ?: ""
+        val coverUrl = document.select("[class=bigImage]").first()?.attr("href") ?: ""
 
+        val screenshots = mutableListOf<Screenshot>()
         for (box in document.select("[class*=sample-box]")) {
             val src = box.getElementsByTag("img").first()?.attr("src") ?: ""
             if (src.isNotEmpty()) {
-                movie.screenshots.add(
+                screenshots.add(
                     Screenshot.create(
                         src,
                         box.attr("href")
@@ -103,8 +103,9 @@ object AVMOProvider {
             }
         }
 
+        val actresses = mutableListOf<Actress>()
         for (box in document.select("[class*=avatar-box]")) {
-            movie.actresses.add(
+            actresses.add(
                 Actress.create(
                     box.text(),
                     box.getElementsByTag("img").first()?.attr("src") ?: "",
@@ -113,11 +114,14 @@ object AVMOProvider {
             )
         }
 
+        val headers = mutableListOf<MovieDetail.Header>()
+        val genres = mutableListOf<Genre>()
+
         val info = document.select("div.info").first()
         if (info != null) {
             for (p in info.select("p:not([class*=header]):has(span:not([class=genre]))")) {
                 val strings = p.text().split(":", limit = 2)
-                movie.headers.add(
+                headers.add(
                     MovieDetail.Header.create(
                         strings[0].trim(),
                         strings.getOrNull(1)?.trim() ?: "",
@@ -129,7 +133,7 @@ object AVMOProvider {
             val headerNames = info.select("p[class*=header]").map { it.text().replace(":", "") }
             val headerAttr = info.select("p[class*=header] > a").map { arrayOf(it.text(), it.attr("href")) }
             for (i in 0 until minOf(headerNames.size, headerAttr.size)) {
-                movie.headers.add(
+                headers.add(
                     MovieDetail.Header.create(
                         headerNames[i],
                         headerAttr[i][0].trim(),
@@ -139,10 +143,17 @@ object AVMOProvider {
             }
 
             for (a in info.select("* > [class=genre] > a")) {
-                movie.genres.add(Genre.create(a.text(), a.attr("href")))
+                genres.add(Genre.create(a.text(), a.attr("href")))
             }
         }
-        return movie
+        return MovieDetail(
+            title = title,
+            coverUrl = coverUrl,
+            headers = headers,
+            screenshots = screenshots,
+            genres = genres,
+            actresses = actresses
+        )
     }
 
     /**

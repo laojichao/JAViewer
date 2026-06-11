@@ -39,7 +39,7 @@
                     android:layout_height="24dp"
                     android:layout_marginTop="16dp"
                     android:src="@drawable/ic_movie_preview"
-                    android:tint="@color/colorAccent" />
+                    app:tint="@color/colorAccent" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -70,7 +70,7 @@
                     android:layout_height="24dp"
                     android:layout_marginTop="16dp"
                     android:src="@drawable/ic_movie_play"
-                    android:tint="@color/colorAccent" />
+                    app:tint="@color/colorAccent" />
 
                 <TextView
                     android:layout_width="wrap_content"

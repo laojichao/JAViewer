@@ -41,7 +41,9 @@ class MovieHeaderAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val header = headers[position]
+        val pos = holder.bindingAdapterPosition
+        if (pos == RecyclerView.NO_POSITION) return
+        val header = headers[pos]
         holder.binding.headerName.text = header.name
         holder.binding.headerValue.text = header.value
 

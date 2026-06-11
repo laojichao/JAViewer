@@ -27,7 +27,9 @@ class GenreAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val genre = genres[position]
+        val pos = holder.bindingAdapterPosition
+        if (pos == RecyclerView.NO_POSITION) return
+        val genre = genres[pos]
         holder.binding.genreName.text = genre.name
         holder.binding.cardGenre.setOnClickListener {
             if (genre.link != null) {

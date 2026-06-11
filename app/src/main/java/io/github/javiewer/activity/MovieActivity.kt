@@ -40,7 +40,6 @@ import io.github.javiewer.repository.ConfigRepository
 import io.github.javiewer.util.UiState
 import io.github.javiewer.view.ViewUtil
 import io.github.javiewer.viewmodel.MovieDetailViewModel
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -108,17 +107,14 @@ class MovieActivity : SecureActivity() {
                     }
                 }
                 launch {
-                    viewModel.starred.drop(1).collect { isStarred ->
+                    viewModel.starred.collect { isStarred ->
                         if (isStarred) {
                             mStarButton?.setIcon(R.drawable.ic_menu_star)
-                            Snackbar.make(binding.movieContent.root, "已收藏", Snackbar.LENGTH_LONG).show()
                             mStarButton?.title = "取消收藏"
                         } else {
                             mStarButton?.setIcon(R.drawable.ic_menu_star_border)
-                            Snackbar.make(binding.movieContent.root, "已取消收藏", Snackbar.LENGTH_LONG).show()
                             mStarButton?.title = "收藏"
                         }
-                        FavouriteActivity.update()
                     }
                 }
             }
@@ -132,6 +128,7 @@ class MovieActivity : SecureActivity() {
             return
         }
         viewModel.loadDetail(movieLink, movie.title)
+        viewModel.loadStarStatus(movie)
     }
 
     /** 展示影片详情信息 */
@@ -221,13 +218,28 @@ class MovieActivity : SecureActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.movie, menu)
         mStarButton = menu.findItem(R.id.action_star)
-        if (viewModel.isMovieStarred(movie)) {
-            mStarButton?.setIcon(R.drawable.ic_menu_star)
-            mStarButton?.title = "取消收藏"
-        }
+        // Star status is loaded async via loadStarStatus() in onCreate
         mStarButton?.setOnMenuItemClickListener {
             viewModel.toggleStarMovie(movie)
             true
+        }
+
+        // Show Snackbar feedback for toggle actions
+        lifecycleScope.launch {
+            var isFirstEmission = true
+            viewModel.starred.collect { isStarred ->
+                if (isFirstEmission) {
+                    isFirstEmission = false
+                    return@collect
+                }
+                val root = binding.movieContent.root
+                if (isStarred) {
+                    Snackbar.make(root, "已收藏", Snackbar.LENGTH_LONG).show()
+                } else {
+                    Snackbar.make(root, "已取消收藏", Snackbar.LENGTH_LONG).show()
+                }
+                FavouriteActivity.update()
+            }
         }
 
         menu.findItem(R.id.action_share)?.setOnMenuItemClickListener {

@@ -123,6 +123,15 @@ class ConfigRepository @Inject constructor(
         runBlocking(Dispatchers.IO) { movieDao.isStarred(movie.code) }
 
     /**
+     * 检查女优是否已收藏（挂起版本）。
+     *
+     * @param actress 目标女优
+     * @return true 表示已收藏
+     */
+    suspend fun isActressStarred(actress: Actress): Boolean =
+        actressDao.isStarred(actress.name)
+
+    /**
      * 检查女优是否已收藏（同步阻塞版本）。
      *
      * @param actress 目标女优

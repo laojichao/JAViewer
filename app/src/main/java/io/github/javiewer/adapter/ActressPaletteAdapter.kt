@@ -44,12 +44,14 @@ class ActressPaletteAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val actress = actresses[position]
+        val pos = holder.bindingAdapterPosition
+        if (pos == RecyclerView.NO_POSITION) return
+        val actress = actresses[pos]
         holder.binding.cardActressPalette.setOnClickListener(ActressClickListener(actress, activity))
         holder.binding.cardActressPalette.setOnLongClickListener(ActressLongClickListener(actress, activity, configRepository))
         holder.binding.actressPaletteName.text = actress.name
         holder.binding.cardActressPalette.setCardBackgroundColor(0)
-        if (position == 0) ViewUtil.alignIconToView(icon, holder.binding.actressPaletteImg)
+        if (pos == 0) ViewUtil.alignIconToView(icon, holder.binding.actressPaletteImg)
         holder.binding.actressPaletteImg.setImageResource(R.drawable.ic_movie_actresses)
         if (actress.imageUrl.trim().isEmpty()) return
 
@@ -62,11 +64,11 @@ class ActressPaletteAdapter(
             .transform(SquareTopCrop())
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    if (holder.bindingAdapterPosition != position) return
+                    if (holder.bindingAdapterPosition != pos) return
                     holder.binding.actressPaletteImg.setImageBitmap(resource)
                     try {
                         Palette.from(resource).generate { palette ->
-                            if (holder.bindingAdapterPosition != position) return@generate
+                            if (holder.bindingAdapterPosition != pos) return@generate
                             val swatch = palette?.lightVibrantSwatch ?: return@generate
                             holder.binding.cardActressPalette.setCardBackgroundColor(swatch.rgb)
                             holder.binding.actressPaletteName.setTextColor(swatch.bodyTextColor)

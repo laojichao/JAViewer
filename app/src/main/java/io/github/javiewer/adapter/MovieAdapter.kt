@@ -33,7 +33,9 @@ open class MovieAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val movie = getItems()[position]
+        val pos = holder.bindingAdapterPosition
+        if (pos == RecyclerView.NO_POSITION) return
+        val movie = getItems()[pos]
         holder.bind(movie)
         holder.binding.cardMovie.setOnClickListener {
             val act = activity ?: return@setOnClickListener

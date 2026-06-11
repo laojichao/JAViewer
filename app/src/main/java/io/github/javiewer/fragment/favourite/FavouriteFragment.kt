@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import io.github.javiewer.adapter.ItemAdapter
 import io.github.javiewer.fragment.RecyclerFragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * 收藏列表 Fragment 抽象基类，用于展示收藏的影片或女优。
@@ -19,9 +21,19 @@ import kotlinx.coroutines.launch
  */
 abstract class FavouriteFragment<T : Parcelable> : RecyclerFragment<T, LinearLayoutManager>() {
 
-    /** 通知适配器数据变更，刷新列表 */
+    /** 重新从数据库加载收藏数据并刷新列表 */
     fun update() {
-        getAdapter()?.notifyDataSetChanged()
+        if (!isAdded) return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val newItems = withContext(Dispatchers.IO) { loadItems() }
+            if (isAdded) {
+                val adapter = getAdapter()
+                if (adapter is ItemAdapter<*, *>) {
+                    @Suppress("UNCHECKED_CAST")
+                    (adapter as ItemAdapter<T, *>).setItems(newItems)
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

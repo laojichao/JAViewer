@@ -78,7 +78,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:src="@drawable/ic_menu_popular"
-                android:tint="#ffcc0000"
+                app:tint="#ffcc0000"
                 android:visibility="gone" />
         </RelativeLayout>
     </RelativeLayout>

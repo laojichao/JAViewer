@@ -37,7 +37,9 @@ class ScreenshotAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val screenshot = screenshots[position]
+        val pos = holder.bindingAdapterPosition
+        if (pos == RecyclerView.NO_POSITION) return
+        val screenshot = screenshots[pos]
         holder.binding.screenshotImageView.setImageDrawable(null)
         Glide.with(holder.binding.screenshotImageView.context.applicationContext)
             .load(screenshot.thumbnailUrl)
@@ -54,7 +56,7 @@ class ScreenshotAdapter(
             }
             activity?.startActivity(android.content.Intent(activity, GalleryActivity::class.java).putExtras(bundle))
         }
-        if (position == 0) ViewUtil.alignIconToView(icon, holder.binding.screenshotImageView)
+        if (pos == 0) ViewUtil.alignIconToView(icon, holder.binding.screenshotImageView)
     }
 
     override fun getItemCount(): Int = screenshots.size

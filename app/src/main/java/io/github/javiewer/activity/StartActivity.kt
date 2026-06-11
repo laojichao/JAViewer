@@ -57,13 +57,6 @@ class StartActivity : AppCompatActivity() {
         JAViewer.CONFIGURATIONS = io.github.javiewer.Configurations.load(config)
         lifecycleScope.launch {
             migrator.migrateIfNeeded()
-            loadProperties()
-        }
-    }
-
-    /** 异步加载远程配置 */
-    private fun loadProperties() {
-        lifecycleScope.launch {
             val properties = propertiesRepository.fetchProperties()
             if (properties != null && !isFinishing) {
                 handleProperties(properties)

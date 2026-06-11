@@ -60,13 +60,15 @@ class MovieDetailViewModel @Inject constructor(
     }
 
     /**
-     * 同步检查影片是否已收藏。
+     * 异步加载影片收藏状态，结果通过 [starred] 发出。
      *
      * @param movie 目标影片
-     * @return true 表示已收藏
      */
-    fun isMovieStarred(movie: Movie): Boolean =
-        configRepository.isMovieStarredSync(movie)
+    fun loadStarStatus(movie: Movie) {
+        viewModelScope.launch {
+            _starred.value = configRepository.isMovieStarred(movie)
+        }
+    }
 
     /**
      * 切换影片收藏状态，结果通过 [starred] 发出。

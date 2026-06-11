@@ -123,6 +123,7 @@ class GalleryActivity : SecureActivity() {
         supportActionBar?.hide()
         binding.toolbarGallery.startAnimation(fadeOut)
         mVisible = false
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         handler.removeCallbacks(showPart2Runnable)
         handler.postDelayed(hidePart2Runnable, 300)
     }

@@ -10,6 +10,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.speech.RecognizerIntent;
@@ -370,13 +371,17 @@ public class SimpleSearchView extends FrameLayout implements Filter.FilterListen
     }
 
     public void setCursorDrawable(int drawable) {
-        try {
-            // https://github.com/android/platform_frameworks_base/blob/kitkat-release/core/java/android/widget/TextView.java#L562-564
-            Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
-            f.setAccessible(true);
-            f.set(mSearchSrcTextView, drawable);
-        } catch (Exception ignored) {
-            Log.e("MaterialSearchView", ignored.toString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mSearchSrcTextView.setTextCursorDrawable(drawable);
+        } else {
+            try {
+                // https://github.com/android/platform_frameworks_base/blob/kitkat-release/core/java/android/widget/TextView.java#L562-564
+                Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
+                f.setAccessible(true);
+                f.set(mSearchSrcTextView, drawable);
+            } catch (Exception ignored) {
+                Log.e("MaterialSearchView", ignored.toString());
+            }
         }
     }
 

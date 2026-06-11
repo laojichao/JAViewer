@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import io.github.javiewer.activity.FavouriteActivity
 import io.github.javiewer.activity.MovieActivity
+import io.github.javiewer.activity.MovieListActivity
 import io.github.javiewer.ui.screen.HomeScreen
 
 /**
@@ -44,6 +45,13 @@ fun JaviewerNavGraph(
                     val intent = Intent(context, MovieActivity::class.java)
                     intent.putExtra("movie", movie)
                     context.startActivity(intent)
+                },
+                onActressClick = { actress ->
+                    val link = actress.link
+                    if (!link.isNullOrEmpty()) {
+                        val intent = MovieListActivity.newIntent(context, actress.name, link)
+                        context.startActivity(intent)
+                    }
                 },
                 onFavoritesClick = {
                     context.startActivity(Intent(context, FavouriteActivity::class.java))

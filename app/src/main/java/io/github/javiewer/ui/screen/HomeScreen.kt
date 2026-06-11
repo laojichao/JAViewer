@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -37,7 +41,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import io.github.javiewer.adapter.item.Actress
 import io.github.javiewer.adapter.item.Movie
+import io.github.javiewer.ui.component.ActressCard
 import io.github.javiewer.ui.component.MovieCard
 import io.github.javiewer.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
@@ -57,6 +63,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     onMovieClick: (Movie) -> Unit,
+    onActressClick: (Actress) -> Unit,
     onFavoritesClick: () -> Unit,
     onSearch: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
@@ -66,6 +73,7 @@ fun HomeScreen(
     val context = LocalContext.current
 
     val movies by viewModel.movies.collectAsState()
+    val actresses by viewModel.actresses.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val currentTab by viewModel.currentTab.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -125,14 +133,25 @@ fun HomeScreen(
                 )
             }
         ) { padding ->
-            MovieList(
-                movies = movies,
-                isLoading = isLoading,
-                onMovieClick = onMovieClick,
-                onLoadMore = { viewModel.loadNextPage() },
-                onRefresh = { viewModel.refresh() },
-                modifier = Modifier.padding(padding)
-            )
+            if (currentTab == 3) {
+                ActressList(
+                    actresses = actresses,
+                    isLoading = isLoading,
+                    onActressClick = onActressClick,
+                    onLoadMore = { viewModel.loadNextPage() },
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.padding(padding)
+                )
+            } else {
+                MovieList(
+                    movies = movies,
+                    isLoading = isLoading,
+                    onMovieClick = onMovieClick,
+                    onLoadMore = { viewModel.loadNextPage() },
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.padding(padding)
+                )
+            }
         }
     }
 }
@@ -193,6 +212,72 @@ private fun MovieList(
                     MovieCard(
                         movie = movie,
                         onClick = { onMovieClick(movie) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 女优列表组件，支持下拉刷新和无限滚动。
+ *
+ * @param actresses 女优列表数据
+ * @param isLoading 是否正在加载
+ * @param onActressClick 女优点击回调
+ * @param onLoadMore 触发加载更多回调
+ * @param onRefresh 下拉刷新回调
+ * @param modifier 修饰符
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ActressList(
+    actresses: List<Actress>,
+    isLoading: Boolean,
+    onActressClick: (Actress) -> Unit,
+    onLoadMore: () -> Unit,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val gridState = rememberLazyGridState()
+
+    // Infinite scroll detection
+    LaunchedEffect(gridState) {
+        snapshotFlow { gridState.layoutInfo }
+            .collect { layoutInfo ->
+                val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                val totalItems = layoutInfo.totalItemsCount
+                if (lastVisible >= totalItems - 5 && !isLoading) {
+                    onLoadMore()
+                }
+            }
+    }
+
+    PullToRefreshBox(
+        isRefreshing = isLoading && actresses.isEmpty(),
+        onRefresh = onRefresh,
+        modifier = modifier.fillMaxSize()
+    ) {
+        if (actresses.isEmpty() && !isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("暂无数据", style = MaterialTheme.typography.bodyLarge)
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                state = gridState,
+                contentPadding = PaddingValues(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(actresses, key = { it.name }) { actress ->
+                    ActressCard(
+                        actress = actress,
+                        onClick = { onActressClick(actress) },
+                        onLongClick = { /* no-op */ }
                     )
                 }
             }
